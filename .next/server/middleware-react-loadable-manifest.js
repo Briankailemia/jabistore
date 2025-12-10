@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"components/ClientLayout.js -> ./PerformanceMonitor\":{\"id\":\"components/ClientLayout.js -> ./PerformanceMonitor\",\"files\":[\"static/chunks/_app-pages-browser_src_components_PerformanceMonitor_js.js\"]}}"
