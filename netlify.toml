@@ -1,0 +1,12 @@
+[build]
+  # Generate Prisma Client before build to avoid cached client issues
+  command = "npx prisma generate && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22.21.1"
+
+# Next.js plugin for Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
