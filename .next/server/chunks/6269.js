@@ -1,1 +1,0 @@
-"use strict";exports.id=6269,exports.ids=[6269],exports.modules={66269:(e,t,r)=>{r.r(t),r.d(t,{default:()=>d}),r(45512);var s=r(58009);let d=()=>{let[e,t]=(0,s.useState)({loadTime:0,renderTime:0,memoryUsage:0,fps:0});return(0,s.useEffect)(()=>{},[]),null}}};
