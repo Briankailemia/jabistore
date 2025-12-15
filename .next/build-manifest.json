@@ -1,17 +1,82 @@
 {
   "polyfillFiles": [
-    "static/chunks/polyfills.js"
+    "static/chunks/polyfills-42372ed130431b0a.js"
   ],
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/development/_buildManifest.js",
-    "static/development/_ssgManifest.js"
+    "static/qP8Epyjb5CBERb6KOQ5Nq/_buildManifest.js",
+    "static/qP8Epyjb5CBERb6KOQ5Nq/_ssgManifest.js"
   ],
-  "rootMainFiles": [],
+  "rootMainFiles": [
+    "static/chunks/webpack-4796c5a5ad731cc1.js",
+    "static/chunks/vendors-4596aa34-ab1b6a7930c3438f.js",
+    "static/chunks/vendors-b98d5b91-f174392a7a790a59.js",
+    "static/chunks/vendors-27f02048-95d99a775bf15de4.js",
+    "static/chunks/vendors-4a7382ad-74c8a2828967e1cd.js",
+    "static/chunks/vendors-4e8e7ca0-5d7714ff0104d172.js",
+    "static/chunks/vendors-fc717cc5-68a1c6b4ca37b53e.js",
+    "static/chunks/vendors-362d063c-15767fdfd1efadf1.js",
+    "static/chunks/vendors-9c587c8a-e09d6c765ec4510d.js",
+    "static/chunks/vendors-4aa88247-a908e9c7c3a182cb.js",
+    "static/chunks/vendors-6808aa01-3a5792f341b6bb16.js",
+    "static/chunks/vendors-c3a08eae-7842aad083d7ec26.js",
+    "static/chunks/vendors-ff30e0d3-846a269381cc4251.js",
+    "static/chunks/vendors-0fbe0e3f-4666e9c137fe4347.js",
+    "static/chunks/vendors-a73c26c6-92664f92e1c663e3.js",
+    "static/chunks/vendors-2ac4632b-a69f47368370036b.js",
+    "static/chunks/vendors-89d5c698-d3f278d122786616.js",
+    "static/chunks/vendors-44d075c1-c2e0101d938f4c11.js",
+    "static/chunks/main-app-65af550debd04f75.js"
+  ],
   "rootMainFilesTree": {},
   "pages": {
-    "/_app": []
+    "/_app": [
+      "static/chunks/webpack-4796c5a5ad731cc1.js",
+      "static/chunks/react-855032bace0bea8b.js",
+      "static/chunks/vendors-4596aa34-ab1b6a7930c3438f.js",
+      "static/chunks/vendors-b98d5b91-f174392a7a790a59.js",
+      "static/chunks/vendors-27f02048-95d99a775bf15de4.js",
+      "static/chunks/vendors-4a7382ad-74c8a2828967e1cd.js",
+      "static/chunks/vendors-4e8e7ca0-5d7714ff0104d172.js",
+      "static/chunks/vendors-fc717cc5-68a1c6b4ca37b53e.js",
+      "static/chunks/vendors-362d063c-15767fdfd1efadf1.js",
+      "static/chunks/vendors-9c587c8a-e09d6c765ec4510d.js",
+      "static/chunks/vendors-4aa88247-a908e9c7c3a182cb.js",
+      "static/chunks/vendors-6808aa01-3a5792f341b6bb16.js",
+      "static/chunks/vendors-c3a08eae-7842aad083d7ec26.js",
+      "static/chunks/vendors-ff30e0d3-846a269381cc4251.js",
+      "static/chunks/vendors-0fbe0e3f-4666e9c137fe4347.js",
+      "static/chunks/vendors-a73c26c6-92664f92e1c663e3.js",
+      "static/chunks/vendors-2ac4632b-a69f47368370036b.js",
+      "static/chunks/vendors-89d5c698-d3f278d122786616.js",
+      "static/chunks/vendors-44d075c1-c2e0101d938f4c11.js",
+      "static/chunks/main-58ee609c69879b13.js",
+      "static/chunks/pages/_app-f08973dd6134e837.js"
+    ],
+    "/_error": [
+      "static/chunks/webpack-4796c5a5ad731cc1.js",
+      "static/chunks/react-855032bace0bea8b.js",
+      "static/chunks/vendors-4596aa34-ab1b6a7930c3438f.js",
+      "static/chunks/vendors-b98d5b91-f174392a7a790a59.js",
+      "static/chunks/vendors-27f02048-95d99a775bf15de4.js",
+      "static/chunks/vendors-4a7382ad-74c8a2828967e1cd.js",
+      "static/chunks/vendors-4e8e7ca0-5d7714ff0104d172.js",
+      "static/chunks/vendors-fc717cc5-68a1c6b4ca37b53e.js",
+      "static/chunks/vendors-362d063c-15767fdfd1efadf1.js",
+      "static/chunks/vendors-9c587c8a-e09d6c765ec4510d.js",
+      "static/chunks/vendors-4aa88247-a908e9c7c3a182cb.js",
+      "static/chunks/vendors-6808aa01-3a5792f341b6bb16.js",
+      "static/chunks/vendors-c3a08eae-7842aad083d7ec26.js",
+      "static/chunks/vendors-ff30e0d3-846a269381cc4251.js",
+      "static/chunks/vendors-0fbe0e3f-4666e9c137fe4347.js",
+      "static/chunks/vendors-a73c26c6-92664f92e1c663e3.js",
+      "static/chunks/vendors-2ac4632b-a69f47368370036b.js",
+      "static/chunks/vendors-89d5c698-d3f278d122786616.js",
+      "static/chunks/vendors-44d075c1-c2e0101d938f4c11.js",
+      "static/chunks/main-58ee609c69879b13.js",
+      "static/chunks/pages/_error-96e8f18e780799e0.js"
+    ]
   },
   "ampFirstPages": []
 }

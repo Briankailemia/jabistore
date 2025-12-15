@@ -1,1 +1,8 @@
-{}
+{
+  "components/ClientLayout.js -> ./PerformanceMonitor": {
+    "id": 4265,
+    "files": [
+      "static/chunks/4265.45347cd203734adf.js"
+    ]
+  }
+}

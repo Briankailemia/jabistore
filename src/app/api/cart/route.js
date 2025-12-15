@@ -56,8 +56,9 @@ export const GET = createApiHandler({
 })
 
 // POST /api/cart - Add item to cart
+// Product IDs are cuid strings (not UUID). Accept any non-empty string.
 const addToCartSchema = z.object({
-  productId: z.string().uuid('Invalid product ID'),
+  productId: z.string().min(1, 'Invalid product ID'),
   quantity: z.number().int().positive().default(1),
 })
 

@@ -59,8 +59,9 @@ export const GET = createApiHandler({
 })
 
 // POST /api/wishlist - Add item to wishlist
+// Product IDs are cuid strings (not UUID). Accept any non-empty string.
 const addToWishlistSchema = z.object({
-  productId: z.string().uuid('Invalid product ID'),
+  productId: z.string().min(1, 'Invalid product ID'),
 })
 
 export const POST = createApiHandler({

@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"components/ClientLayout.js -> ./PerformanceMonitor":{"id":4265,"files":["static/chunks/4265.45347cd203734adf.js"]}}';

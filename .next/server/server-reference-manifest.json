@@ -1,5 +1,1 @@
-{
-  "node": {},
-  "edge": {},
-  "encryptionKey": "g1FifcDftN/RB3YDS0bEDtf9+SI0XztC7EHjikOWKQM="
-}
+{"node":{"40730ba6f41708c194c0de7e9e67b1e1518b46925b":{"workers":{"app/api/coupons/[id]/route":{"moduleId":"78633","async":false},"app/api/orders/[id]/refund/route":{"moduleId":"78633","async":false},"app/api/orders/[id]/route":{"moduleId":"78633","async":false},"app/api/payments/mpesa/callback/route":{"moduleId":"78633","async":false},"app/api/payments/stripe/route":{"moduleId":"78633","async":false},"app/api/users/[id]/route":{"moduleId":"78633","async":false},"app/api/settings/route":{"moduleId":"78633","async":false},"app/api/products/[id]/route":{"moduleId":"78633","async":false}},"layer":{"app/api/coupons/[id]/route":"rsc","app/api/orders/[id]/refund/route":"rsc","app/api/orders/[id]/route":"rsc","app/api/payments/mpesa/callback/route":"rsc","app/api/payments/stripe/route":"rsc","app/api/users/[id]/route":"rsc","app/api/settings/route":"rsc","app/api/products/[id]/route":"rsc"}}},"edge":{},"encryptionKey":"g1FifcDftN/RB3YDS0bEDtf9+SI0XztC7EHjikOWKQM="}
