@@ -133,29 +133,48 @@ export const schemas = {
   // Order
   createOrder: z.object({
     items: z.array(z.object({
-      productId: z.string().uuid(),
+      // Product IDs are cuid (not UUID); accept any non-empty string
+      productId: z.string().min(1, 'Product ID is required'),
       quantity: z.number().int().positive(),
-    })).min(1),
+      price: z.coerce.number().optional(),
+    })).min(1, 'Order must contain at least one item'),
+
+    // Optional inline shipping address (checkout form) OR existing address id
     shippingAddress: z.object({
       firstName: z.string().min(1),
       lastName: z.string().min(1),
       email: z.string().email(),
-      phone: z.string().min(10),
+      phone: z.string().min(7),
       address: z.string().min(1),
       city: z.string().min(1),
-      state: z.string().optional(),
-      postalCode: z.string().optional(),
+      state: z.string().optional().nullable(),
+      postalCode: z.string().optional().nullable(),
       country: z.string().min(1),
-    }),
+    }).optional(),
+
+    shippingAddressId: z.string().min(1).optional(),
+
     paymentMethod: z.enum(['mpesa', 'card', 'stripe']),
     couponCode: z.string().optional(),
+
+    // Totals are optional; server will recompute if missing
+    total: z.coerce.number().optional(),
+    subtotal: z.coerce.number().optional(),
+    shipping: z.coerce.number().optional(),
+    tax: z.coerce.number().optional(),
+    discount: z.coerce.number().optional(),
+    notes: z.string().optional().nullable(),
+  }).refine((data) => data.shippingAddress || data.shippingAddressId, {
+    message: 'Shipping address is required',
+    path: ['shippingAddress'],
   }),
 
   // M-Pesa Payment
   mpesaPayment: z.object({
     phone: z.string().regex(/^254\d{9}$/, 'Phone must be in format 2547XXXXXXXX'),
     amount: z.number().positive().optional(),
-    orderId: z.string().uuid('Order ID is required'),
+    // Order IDs are cuid; accept non-empty string
+    orderId: z.string().min(1, 'Order ID is required'),
   }),
 
   // Review
