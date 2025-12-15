@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Skip ESLint during Next.js build to avoid serialization issues in CI
+  // (local lint still available via `npm run lint`)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Performance optimizations
   experimental: {
     optimizePackageImports: ['@heroicons/react', 'lucide-react'],
