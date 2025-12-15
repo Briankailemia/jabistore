@@ -1,5 +1,6 @@
-// Use Next.js recommended ESLint config to avoid serialization issues
-// This ensures parser is handled correctly by Next.js
+// Use Next.js recommended ESLint config
+// Note: ESLint warnings about TypeScript parser are non-blocking
+// The build completes successfully despite these warnings
 import { FlatCompat } from "@eslint/eslintrc";
 import path from "path";
 import { fileURLToPath } from "url";

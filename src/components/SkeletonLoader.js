@@ -90,26 +90,26 @@ export function TableSkeleton({ rows = 5, cols = 4 }) {
 
 export function ProductDetailSkeleton() {
   return (
-    <div className="min-h-screen bg-transparent text-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-10 animate-pulse">
-        <div className="h-4 bg-slate-800 rounded w-64" />
+    <div className="min-h-screen bg-transparent text-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-10 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-64" />
         
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10">
           <div className="space-y-4">
-            <div className="aspect-square bg-slate-800 rounded-3xl" />
+            <div className="aspect-square bg-gray-200 rounded-2xl" />
             <div className="grid grid-cols-4 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="aspect-square bg-slate-800 rounded-2xl" />
+                <div key={i} className="aspect-square bg-gray-200 rounded-xl" />
               ))}
             </div>
           </div>
           
           <div className="space-y-6">
             <div className="space-y-4">
-              <div className="h-4 bg-slate-800 rounded w-32" />
-              <div className="h-8 bg-slate-800 rounded w-3/4" />
-              <div className="h-6 bg-slate-800 rounded w-24" />
-              <div className="h-10 bg-slate-800 rounded w-32" />
+              <div className="h-4 bg-gray-200 rounded w-32" />
+              <div className="h-8 bg-gray-200 rounded w-3/4" />
+              <div className="h-6 bg-gray-200 rounded w-24" />
+              <div className="h-10 bg-gray-200 rounded w-32" />
             </div>
           </div>
         </div>

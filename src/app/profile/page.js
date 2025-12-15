@@ -242,12 +242,12 @@ export default function ProfilePage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Please sign in</h3>
-            <p className="text-gray-600 mb-4">You need to be signed in to view your profile.</p>
-            <Link href="/auth/signin" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-semibold">
+          <div className="text-center py-12 bg-white rounded-3xl border-2 border-gray-200 shadow-xl">
+            <h3 className="text-lg font-black text-gray-900 mb-2">Please sign in</h3>
+            <p className="text-gray-600 mb-4 font-medium">You need to be signed in to view your profile.</p>
+            <Link href="/auth/signin" className="bg-blue-900 text-white px-6 py-3 rounded-xl hover:bg-blue-800 transition-all duration-200 font-bold shadow-lg hover:shadow-xl">
               Sign In
             </Link>
           </div>
@@ -257,29 +257,33 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 mb-8 text-white">
-          <div className="flex items-center space-x-6">
-            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
-              <span className="text-3xl font-bold text-white">
+        <div className="relative overflow-hidden rounded-[36px] border-2 border-gray-200 bg-gradient-to-br from-blue-50 via-white to-blue-100 p-8 mb-8 shadow-lg">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-24 left-10 h-72 w-72 rounded-full bg-blue-300/30 blur-3xl" />
+            <div className="absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-indigo-300/25 blur-3xl" />
+          </div>
+          <div className="relative z-10 flex items-center space-x-6">
+            <div className="w-24 h-24 bg-blue-900 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+              <span className="text-3xl font-black text-white">
                 {formData.firstName?.[0] || session.user.email?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold mb-2">
+              <h1 className="text-3xl font-black mb-2 text-gray-900">
                 {formData.firstName && formData.lastName 
                   ? `${formData.firstName} ${formData.lastName}` 
                   : session.user.name || session.user.email}
               </h1>
-              <p className="text-purple-100 mb-1">{session.user.email}</p>
+              <p className="text-gray-600 mb-1 font-medium">{session.user.email}</p>
               <div className="flex items-center space-x-4 text-sm">
-                <span className="bg-white/20 px-3 py-1 rounded-full">
+                <span className="bg-blue-900 text-white px-3 py-1 rounded-full font-bold">
                   {session.user.role === 'ADMIN' ? '👑 Admin' : '👤 Customer'}
                 </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">
+                <span className="bg-gray-100 text-gray-900 px-3 py-1 rounded-full font-bold border-2 border-gray-200">
                   Member since 2024
                 </span>
               </div>
@@ -288,9 +292,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
+        <div className="bg-white rounded-3xl shadow-lg border-2 border-gray-200 mb-8">
+          <div className="border-b-2 border-gray-100">
+            <nav className="-mb-px flex space-x-8 px-6 overflow-x-auto">
               {[
                 { id: 'overview', label: 'Overview', icon: '📊' },
                 { id: 'personal', label: 'Personal Info', icon: '👤' },
@@ -302,10 +306,10 @@ export default function ProfilePage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  className={`py-4 px-1 border-b-2 font-bold text-sm flex items-center space-x-2 whitespace-nowrap transition-colors ${
                     activeTab === tab.id
-                      ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-blue-900 text-blue-900 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-blue-900 hover:border-blue-300'
                   }`}
                 >
                   <span>{tab.icon}</span>
@@ -423,11 +427,11 @@ export default function ProfilePage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Overview</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                  <div className="bg-white border-2 border-blue-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-blue-100">Total Orders</p>
-                        <p className="text-3xl font-bold">
+                        <p className="text-gray-600 font-bold mb-1">Total Orders</p>
+                        <p className="text-3xl font-black text-blue-900">
                           {ordersLoading ? '–' : totalOrders}
                         </p>
                       </div>
@@ -435,11 +439,11 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+                  <div className="bg-white border-2 border-emerald-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-green-100">Total Spent</p>
-                        <p className="text-3xl font-bold">
+                        <p className="text-gray-600 font-bold mb-1">Total Spent</p>
+                        <p className="text-3xl font-black text-emerald-900">
                           {ordersLoading ? '–' : formatKES(totalSpent)}
                         </p>
                       </div>
@@ -447,11 +451,11 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+                  <div className="bg-white border-2 border-blue-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-purple-100">Wishlist Items</p>
-                        <p className="text-3xl font-bold">
+                        <p className="text-gray-600 font-bold mb-1">Wishlist Items</p>
+                        <p className="text-3xl font-black text-blue-900">
                           {wishlistLoading ? '–' : wishlistCount}
                         </p>
                       </div>
@@ -460,23 +464,23 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                <div className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-md">
+                  <h3 className="text-lg font-black text-gray-900 mb-4">Recent Activity</h3>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Order #FH-2024-001 delivered successfully</span>
-                      <span className="text-xs text-gray-400">2 days ago</span>
+                      <div className="w-2 h-2 bg-emerald-600 rounded-full"></div>
+                      <span className="text-sm text-gray-900 font-medium">Order #FH-2024-001 delivered successfully</span>
+                      <span className="text-xs text-gray-500">2 days ago</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Added Smart Home Hub to wishlist</span>
-                      <span className="text-xs text-gray-400">5 days ago</span>
+                      <div className="w-2 h-2 bg-blue-900 rounded-full"></div>
+                      <span className="text-sm text-gray-900 font-medium">Added Smart Home Hub to wishlist</span>
+                      <span className="text-xs text-gray-500">5 days ago</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Profile updated</span>
-                      <span className="text-xs text-gray-400">1 week ago</span>
+                      <div className="w-2 h-2 bg-blue-900 rounded-full"></div>
+                      <span className="text-sm text-gray-900 font-medium">Profile updated</span>
+                      <span className="text-xs text-gray-500">1 week ago</span>
                     </div>
                   </div>
                 </div>
@@ -490,7 +494,7 @@ export default function ProfilePage() {
                   <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
                   <button
                     onClick={() => setIsEditing(!isEditing)}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                    className="bg-blue-900 text-white px-4 py-2 rounded-xl hover:bg-blue-800 transition-colors font-bold shadow-md hover:shadow-lg"
                   >
                     {isEditing ? 'Cancel' : 'Edit'}
                   </button>
@@ -505,7 +509,7 @@ export default function ProfilePage() {
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                       />
                     ) : (
                       <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{formData.firstName || 'Not provided'}</p>
@@ -520,7 +524,7 @@ export default function ProfilePage() {
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                       />
                     ) : (
                       <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{formData.lastName || 'Not provided'}</p>
@@ -540,7 +544,7 @@ export default function ProfilePage() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                       />
                     ) : (
                       <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{formData.phone || 'Not provided'}</p>
@@ -555,7 +559,7 @@ export default function ProfilePage() {
                         name="address"
                         value={formData.address}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                       />
                     ) : (
                       <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{formData.address || 'Not provided'}</p>
@@ -570,7 +574,7 @@ export default function ProfilePage() {
                         name="city"
                         value={formData.city}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                       />
                     ) : (
                       <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{formData.city || 'Not provided'}</p>
@@ -585,7 +589,7 @@ export default function ProfilePage() {
                         name="country"
                         value={formData.country}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                       />
                     ) : (
                       <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{formData.country || 'Not provided'}</p>
@@ -597,14 +601,14 @@ export default function ProfilePage() {
                   <div className="flex space-x-4">
                     <button
                       onClick={handleSave}
-                      className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 transition-colors font-bold shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                       disabled={profileLoading}
                     >
                       {profileLoading ? 'Saving...' : 'Save Changes'}
                     </button>
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
+                      className="bg-gray-100 text-gray-900 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-bold border-2 border-gray-300"
                     >
                       Cancel
                     </button>
@@ -749,16 +753,16 @@ export default function ProfilePage() {
                           <div className="flex space-x-3">
                             <Link
                               href={`/orders/${order.id}`}
-                              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                              className="bg-blue-900 text-white px-4 py-2 rounded-xl hover:bg-blue-800 transition-colors text-sm font-bold shadow-md hover:shadow-lg"
                             >
                               Track Order
                             </Link>
-                            <button className="border border-purple-600 text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
+                            <button className="border-2 border-blue-900 text-blue-900 px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors text-sm font-bold">
                               Reorder Items
                             </button>
                           </div>
                           {order.status === 'DELIVERED' && (
-                            <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                            <button className="text-blue-900 hover:text-blue-700 text-sm font-bold">
                               Leave Review
                             </button>
                           )}
@@ -778,7 +782,7 @@ export default function ProfilePage() {
                   <p className="text-gray-600 mb-6">Start shopping to see your order history here</p>
                   <Link
                     href="/products"
-                    className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                    className="bg-blue-900 text-white px-6 py-3 rounded-xl hover:bg-blue-800 transition-colors font-bold shadow-lg hover:shadow-xl"
                   >
                     Browse Products
                   </Link>
@@ -814,17 +818,17 @@ export default function ProfilePage() {
                         <div className="flex items-center space-x-2 mb-4">
                           {item.product?.originalPrice && item.product?.originalPrice > item.product?.price ? (
                             <>
-                              <span className="text-lg font-bold text-purple-600">{formatKES(item.product?.price)}</span>
+                              <span className="text-lg font-black text-blue-900">{formatKES(item.product?.price)}</span>
                               <span className="text-sm text-gray-500 line-through">{formatKES(item.product?.originalPrice)}</span>
                             </>
                           ) : (
-                            <span className="text-lg font-bold text-purple-600">{formatKES(item.product?.price)}</span>
+                            <span className="text-lg font-black text-blue-900">{formatKES(item.product?.price)}</span>
                           )}
                         </div>
                         <div className="flex space-x-2">
                           <Link
                             href={`/products/${item.product?.slug}`}
-                            className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors text-sm text-center"
+                            className="flex-1 bg-blue-900 text-white py-2 px-4 rounded-xl hover:bg-blue-800 transition-colors text-sm text-center font-bold shadow-md hover:shadow-lg"
                           >
                             View Product
                           </Link>
@@ -849,7 +853,7 @@ export default function ProfilePage() {
                     <p className="mt-2 text-gray-600">Start adding products you love to your wishlist.</p>
                     <Link
                       href="/products"
-                      className="mt-6 inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-semibold"
+                      className="mt-6 inline-block bg-blue-900 text-white px-6 py-3 rounded-xl hover:bg-blue-800 transition-all duration-200 font-bold shadow-lg hover:shadow-xl"
                     >
                       Browse Products
                     </Link>
@@ -872,7 +876,7 @@ export default function ProfilePage() {
                           <p className="font-medium text-gray-900">Email Notifications</p>
                           <p className="text-sm text-gray-600">Receive order updates and promotions</p>
                         </div>
-                        <input type="checkbox" className="rounded border-gray-300 text-purple-600 focus:ring-purple-500" defaultChecked />
+                        <input type="checkbox" className="rounded border-gray-300 text-blue-900 focus:ring-blue-900" defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
@@ -899,7 +903,7 @@ export default function ProfilePage() {
                           <p className="font-medium text-gray-900">Data Analytics</p>
                           <p className="text-sm text-gray-600">Help improve our services with usage data</p>
                         </div>
-                        <input type="checkbox" className="rounded border-gray-300 text-purple-600 focus:ring-purple-500" defaultChecked />
+                        <input type="checkbox" className="rounded border-gray-300 text-blue-900 focus:ring-blue-900" defaultChecked />
                       </div>
                     </div>
                   </div>

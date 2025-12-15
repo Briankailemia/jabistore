@@ -335,7 +335,10 @@ class ApiService {
       credentials: 'include',
     });
     if (!response.ok) {
-      if (response.status === 401) throw new Error('UNAUTHORIZED');
+      // Return empty array for 401 (unauthenticated) instead of throwing
+      if (response.status === 401) {
+        return { success: true, data: [] };
+      }
       throw new Error('Failed to fetch cart');
     }
     return response.json();
@@ -343,17 +346,41 @@ class ApiService {
 
   async addToCart(productId, quantity = 1) {
     this.clearCache();
-    const response = await fetch('/api/cart', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, quantity })
-    });
-    if (!response.ok) {
-      if (response.status === 401) throw new Error('UNAUTHORIZED');
-      throw new Error('Failed to add to cart');
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity })
+      });
+      
+      if (!response.ok) {
+        let errorData = {};
+        try {
+          const text = await response.text();
+          errorData = text ? JSON.parse(text) : {};
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+        }
+        
+        if (response.status === 401) {
+          throw new Error('UNAUTHORIZED');
+        }
+        // Extract error message from API response
+        const errorMessage = errorData?.message || errorData?.error || `Failed to add to cart (${response.status})`;
+        throw new Error(errorMessage);
+      }
+      
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      // Re-throw if it's already an Error with a message
+      if (error instanceof Error) {
+        throw error;
+      }
+      // Otherwise wrap it
+      throw new Error(error?.message || 'Failed to add to cart');
     }
-    return response.json();
   }
 
   async updateCartItem(itemId, quantity) {
@@ -399,14 +426,24 @@ class ApiService {
 
   // Wishlist API
   async getWishlist() {
-    const response = await fetch('/api/wishlist', {
-      credentials: 'include',
-    });
-    if (!response.ok) {
-      if (response.status === 401) throw new Error('UNAUTHORIZED');
-      throw new Error('Failed to fetch wishlist');
+    try {
+      const response = await fetch('/api/wishlist', {
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        // For unauthenticated users or errors, return empty array
+        if (response.status === 401 || response.status === 500) {
+          return [];
+        }
+        throw new Error('Failed to fetch wishlist');
+      }
+      const result = await response.json();
+      // Handle both direct array and wrapped API responses
+      return Array.isArray(result) ? result : (result?.data || []);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      return []; // Return empty array on error
     }
-    return response.json();
   }
 
   async addToWishlist(productId) {
@@ -541,7 +578,7 @@ export const useProducts = (filters = {}) => {
     };
 
     fetchProducts();
-  }, [filtersString, filters]);
+  }, [filtersString]);
 
   const refetch = async () => {
     try {
@@ -559,23 +596,42 @@ export const useProducts = (filters = {}) => {
   return { data, loading, error, refetch };
 };
 
-// Cart hooks
+// Cart hooks - with memoization to prevent unnecessary re-renders
+let cartCache = null;
+let cartCacheTime = 0;
+const CART_CACHE_DURATION = 5000; // 5 seconds cache
+
 export const useCart = () => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(cartCache || []);
+  const [loading, setLoading] = useState(!cartCache);
   const [error, setError] = useState(null);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async (force = false) => {
+    // Use cache if available and not expired
+    const now = Date.now();
+    if (!force && cartCache && (now - cartCacheTime) < CART_CACHE_DURATION) {
+      setData(cartCache);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       const result = await apiService.getCart();
       // Extract cart items from API response (which has structure { success: true, data: [...] })
       const cartItems = Array.isArray(result) ? result : (result?.data || []);
+      
+      // Update cache
+      cartCache = cartItems;
+      cartCacheTime = now;
+      
       setData(cartItems);
     } catch (err) {
       // Don't set error for unauthorized - just return empty array
-      if (err.message === 'UNAUTHORIZED' || err.message.includes('401')) {
+      if (err.message === 'UNAUTHORIZED' || err.message.includes('401') || err.message.includes('Failed to fetch cart')) {
+        cartCache = [];
+        cartCacheTime = now;
         setData([]);
         setError(null);
       } else {
@@ -584,53 +640,54 @@ export const useCart = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   // Expose a method to manually refresh cart (for when items are added)
-  const refreshCart = async () => {
-    await fetchCart();
-  };
+  const refreshCart = useCallback(async () => {
+    cartCache = null; // Clear cache on refresh
+    cartCacheTime = 0; // Reset cache time
+    await fetchCart(true);
+  }, [fetchCart]);
 
-  const addToCart = async (productId, quantity = 1) => {
-    try {
-      await apiService.addToCart(productId, quantity);
-      await fetchCart(); // Refresh cart
-    } catch (err) {
-      // Re-throw to let calling component handle redirect
-      throw err;
-    }
-  };
-
-  const updateCartItem = async (itemId, quantity) => {
+  const updateCartItem = useCallback(async (itemId, quantity) => {
     try {
       await apiService.updateCartItem(itemId, quantity);
-      await fetchCart(); // Refresh cart
+      cartCache = null; // Clear cache
+      cartCacheTime = 0;
+      await fetchCart(true); // Refresh cart
     } catch (err) {
+      setError(err.message);
       throw err;
     }
-  };
+  }, [fetchCart]);
 
-  const removeFromCart = async (itemId) => {
+  const removeFromCart = useCallback(async (itemId) => {
     try {
       await apiService.removeFromCart(itemId);
-      await fetchCart(); // Refresh cart
+      cartCache = null; // Clear cache
+      cartCacheTime = 0;
+      await fetchCart(true); // Refresh cart
     } catch (err) {
       setError(err.message);
+      throw err;
     }
-  };
+  }, [fetchCart]);
 
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     try {
       await apiService.clearCart();
-      await fetchCart(); // Refresh cart
+      cartCache = null; // Clear cache
+      cartCacheTime = 0;
+      await fetchCart(true); // Refresh cart
     } catch (err) {
       setError(err.message);
+      throw err;
     }
-  };
+  }, [fetchCart]);
 
   // Ensure data is always an array
   const cartItems = Array.isArray(data) ? data : [];
@@ -641,7 +698,6 @@ export const useCart = () => {
     error, 
     refetch: fetchCart,
     refreshCart,
-    addToCart,
     updateCartItem,
     removeFromCart,
     clearCart
@@ -650,7 +706,7 @@ export const useCart = () => {
 
 // Wishlist hooks
 export const useWishlist = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -659,9 +715,14 @@ export const useWishlist = () => {
       setLoading(true);
       setError(null);
       const result = await apiService.getWishlist();
-      setData(result);
+      // Ensure result is always an array
+      const wishlistItems = Array.isArray(result) ? result : (result?.data || []);
+      setData(wishlistItems);
     } catch (err) {
-      setError(err.message);
+      // For errors, set empty array and don't show error to user
+      setData([]);
+      setError(null);
+      console.error('Wishlist fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -788,7 +849,9 @@ export const useProduct = (id) => {
         setLoading(true);
         setError(null);
         const result = await apiService.getProduct(id);
-        setData(result);
+        // API returns: { success: true, data: { ...product } }
+        const productData = result?.data || result;
+        setData(productData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -815,16 +878,20 @@ export const useCategories = (filters = {}) => {
         setLoading(true);
         setError(null);
         const result = await apiService.getCategories(filters);
-        setData(result);
+        // Extract categories from API response structure: { success: true, data: [...] }
+        const categoriesData = result?.data || result;
+        setData(categoriesData);
       } catch (err) {
+        console.error('Error fetching categories:', err);
         setError(err.message);
+        setData(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchCategories();
-  }, [filtersString, filters]);
+  }, [filtersString]); // Use filtersString instead of filters
 
   return { data, loading, error };
 };
@@ -842,16 +909,20 @@ export const useBrands = (filters = {}) => {
         setLoading(true);
         setError(null);
         const result = await apiService.getBrands(filters);
-        setData(result);
+        // Extract brands from API response structure: { success: true, data: [...] }
+        const brandsData = result?.data || result;
+        setData(brandsData);
       } catch (err) {
+        console.error('Error fetching brands:', err);
         setError(err.message);
+        setData(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchBrands();
-  }, [filtersString, filters]);
+  }, [filtersString]); // Use filtersString instead of filters
 
   return { data, loading, error };
 };
@@ -868,9 +939,17 @@ export const useOrders = (filters = {}) => {
       setLoading(true);
       setError(null);
       const result = await apiService.getOrders(filters);
-      setData(result);
+      // Extract orders from API response (which has structure { success: true, data: { orders: [...], pagination: {...} } })
+      const ordersData = result?.data || result;
+      setData(ordersData);
     } catch (err) {
-      setError(err.message);
+      // Don't set error for 404 - just return empty data
+      if (err.message?.includes('404') || err.message?.includes('Not Found')) {
+        setData({ orders: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } });
+        setError(null);
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -947,13 +1026,17 @@ export const useCoupons = (filters = {}) => {
       setLoading(true);
       setError(null);
       const result = await apiService.getCoupons(filters);
-      setData(result);
+      // Extract coupons from API response structure: { success: true, data: { coupons: [...], pagination: {...} } }
+      const couponsData = result?.data || result;
+      setData(couponsData);
     } catch (err) {
+      console.error('Error fetching coupons:', err);
       setError(err.message);
+      setData(null); // Set to null on error
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filtersString]); // Use filtersString instead of filters
 
   useEffect(() => {
     fetchCoupons();

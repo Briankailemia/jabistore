@@ -2,10 +2,13 @@ import { ApiResponse, createApiHandler } from '@/lib/apiResponse'
 import { apiRateLimiter } from '@/lib/middleware/rateLimiter'
 import { validateRequest } from '@/lib/middleware/validator'
 import logger from '@/lib/logger'
+import { logAudit } from '@/lib/auditLogger'
 import Stripe from 'stripe'
 import { z } from 'zod'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build')
+const stripeSecret = process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build'
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || ''
+const stripe = new Stripe(stripeSecret)
 
 const stripePaymentSchema = z.object({
   amount: z.number().int().positive('Amount must be positive'),
@@ -63,16 +66,23 @@ export async function PUT(request) {
     const sig = request.headers.get('stripe-signature')
     const body = await request.text()
 
-    const event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ''
-    )
+    if (!sig || !webhookSecret) {
+      logger.error('Stripe webhook missing signature or secret')
+      return ApiResponse.error('Invalid webhook signature', 400)
+    }
+
+    const event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
 
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object
         logger.info('Stripe payment succeeded', { paymentIntentId: paymentIntent.id })
+        await logAudit({
+          action: 'STRIPE_PAYMENT_SUCCEEDED',
+          entityType: 'payment_intent',
+          entityId: paymentIntent.id,
+          details: { amount: paymentIntent.amount, currency: paymentIntent.currency },
+        })
         // TODO: Update order status in database
         break
       }
@@ -80,6 +90,12 @@ export async function PUT(request) {
       case 'payment_intent.payment_failed': {
         const failedPayment = event.data.object
         logger.warn('Stripe payment failed', { paymentIntentId: failedPayment.id })
+        await logAudit({
+          action: 'STRIPE_PAYMENT_FAILED',
+          entityType: 'payment_intent',
+          entityId: failedPayment.id,
+          details: { amount: failedPayment.amount, currency: failedPayment.currency },
+        })
         // TODO: Update order status in database
         break
       }

@@ -36,14 +36,42 @@ export function validateRequest(schema) {
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        logger.warn('Validation error', { errors: error.errors })
+        logger.warn('Validation error', { 
+          errors: error.errors,
+          issues: error.issues,
+          formErrors: error.formErrors
+        })
+        
+        // Extract detailed error information - ZodError has both 'errors' and 'issues'
+        const zodIssues = error.issues || error.errors || []
+        const errorDetails = (Array.isArray(zodIssues) && zodIssues.length > 0)
+          ? zodIssues.map(issue => {
+              const path = (issue.path && Array.isArray(issue.path)) 
+                ? issue.path.join('.') 
+                : (issue.path ? String(issue.path) : 'root')
+              return {
+                path: path,
+                message: issue.message || 'Validation error',
+                code: issue.code,
+                expected: issue.expected,
+                received: issue.received,
+              }
+            })
+          : [{ 
+              path: 'unknown', 
+              message: 'Validation failed - no error details available',
+            }]
+        
+        console.error('=== VALIDATOR ERROR DETAILS ===')
+        console.error('ZodError object:', error)
+        console.error('ZodError.errors:', error.errors)
+        console.error('ZodError.issues:', error.issues)
+        console.error('Processed error details:', errorDetails)
+        
         return {
           success: false,
           error: 'Validation failed',
-          details: error.errors.map(err => ({
-            path: err.path.join('.'),
-            message: err.message,
-          })),
+          details: errorDetails,
           status: 400,
         }
       }
@@ -68,17 +96,38 @@ export const schemas = {
 
   // Product
   createProduct: z.object({
-    name: z.string().min(1).max(255),
-    slug: z.string().min(1).max(255).regex(/^[a-z0-9-]+$/),
-    sku: z.string().min(1).max(100),
-    description: z.string().optional(),
-    price: z.number().positive(),
-    originalPrice: z.number().positive().optional(),
-    stock: z.number().int().min(0).default(0),
+    name: z.string().min(1, 'Product name is required').max(255),
+    slug: z.string().min(1, 'Slug is required').max(255).regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
+    sku: z.string().min(1, 'SKU is required').max(100),
+    description: z.string().max(5000).optional().nullable().transform(val => val === '' || val === undefined ? null : val),
+    shortDescription: z.string().max(160).optional().nullable().transform(val => val === '' || val === undefined ? null : val),
+    price: z.coerce.number().positive('Price must be greater than 0'),
+    originalPrice: z.preprocess(
+      (val) => (val === '' || val === undefined || val === null ? null : val),
+      z.coerce.number().positive().nullable().optional()
+    ),
+    stock: z.coerce.number().int().min(0).default(0),
+    weight: z.preprocess(
+      (val) => (val === '' || val === undefined || val === null ? null : val),
+      z.coerce.number().positive().nullable().optional()
+    ),
+    dimensions: z.string().max(100).optional().nullable().transform(val => val === '' || val === undefined ? null : val),
     featured: z.boolean().default(false),
     published: z.boolean().default(true),
-    categoryId: z.string().uuid().optional(),
-    brandId: z.string().uuid().optional(),
+    categoryId: z.string().min(1, 'Category is required'),
+    brandId: z.string().min(1, 'Brand is required'),
+    images: z.array(z.object({
+      url: z.string().url('Invalid image URL'),
+      alt: z.string().optional(),
+      isPrimary: z.boolean().optional(),
+    })).optional().default([]),
+    features: z.array(z.string()).optional().default([]),
+    specifications: z.array(z.object({
+      name: z.string(),
+      value: z.string(),
+    })).optional().default([]),
+    seoTitle: z.string().min(1, 'SEO title is required').max(255),
+    seoDescription: z.string().min(1, 'SEO description is required').max(160, 'SEO description must be 160 characters or less'),
   }),
 
   // Order
@@ -129,13 +178,60 @@ export const schemas = {
     type: z.enum(['PERCENTAGE', 'FIXED_AMOUNT', 'FREE_SHIPPING'], {
       errorMap: () => ({ message: 'Invalid coupon type' })
     }),
-    value: z.number().positive('Value must be positive'),
-    minOrderAmount: z.number().positive('Minimum order amount must be positive').optional().nullable(),
-    maxDiscount: z.number().positive('Maximum discount must be positive').optional().nullable(),
-    usageLimit: z.number().int().positive('Usage limit must be a positive integer').optional().nullable(),
-    userUsageLimit: z.number().int().positive('User usage limit must be a positive integer').optional().nullable(),
-    validFrom: z.string().datetime('Invalid date format').optional(),
-    validUntil: z.string().datetime('Invalid date format').optional().nullable(),
+    value: z.coerce.number().positive('Value must be positive'),
+    minOrderAmount: z.preprocess(
+      (val) => (val === '' || val === undefined || val === null ? null : val),
+      z.coerce.number().positive('Minimum order amount must be positive').nullable().optional()
+    ),
+    maxDiscount: z.preprocess(
+      (val) => (val === '' || val === undefined || val === null ? null : val),
+      z.coerce.number().positive('Maximum discount must be positive').nullable().optional()
+    ),
+    usageLimit: z.preprocess(
+      (val) => (val === '' || val === undefined || val === null ? null : val),
+      z.coerce.number().int().positive('Usage limit must be a positive integer').nullable().optional()
+    ),
+    userUsageLimit: z.preprocess(
+      (val) => (val === '' || val === undefined || val === null ? null : val),
+      z.coerce.number().int().positive('User usage limit must be a positive integer').nullable().optional()
+    ),
+    validFrom: z.preprocess(
+      (val) => {
+        // Handle empty/undefined values
+        if (!val || val === '' || val === undefined || val === null) {
+          return undefined;
+        }
+        return val;
+      },
+      z.union([
+        z.undefined(),
+        z.string().datetime(),
+        z.string().regex(/^\d{4}-\d{2}-\d{2}$/).transform(val => {
+          // Convert YYYY-MM-DD to ISO datetime
+          const date = new Date(val + 'T00:00:00.000Z');
+          if (isNaN(date.getTime())) {
+            throw new Error('Invalid date format');
+          }
+          return date.toISOString();
+        }),
+      ]).optional()
+    ),
+    validUntil: z.union([
+      z.string().datetime(),
+      z.string().regex(/^\d{4}-\d{2}-\d{2}$/).transform(val => {
+        // Convert YYYY-MM-DD to ISO datetime
+        const date = new Date(val + 'T00:00:00.000Z');
+        if (isNaN(date.getTime())) {
+          throw new z.ZodError([{
+            code: 'custom',
+            path: [],
+            message: 'Invalid date format'
+          }]);
+        }
+        return date.toISOString();
+      }),
+      z.null(),
+    ]).optional(),
   }),
 
   // User update

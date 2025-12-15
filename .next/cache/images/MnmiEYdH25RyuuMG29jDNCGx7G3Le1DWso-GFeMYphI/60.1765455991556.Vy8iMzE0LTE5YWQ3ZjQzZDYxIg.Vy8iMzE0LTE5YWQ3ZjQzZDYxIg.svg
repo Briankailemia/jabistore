@@ -1,0 +1,17 @@
+<svg width="220" height="70" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Dilitech Solutions Logo</title>
+  <desc id="desc">Stylized letters D and S in deep blue</desc>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f2746" />
+      <stop offset="100%" stop-color="#1c4472" />
+    </linearGradient>
+  </defs>
+  <g fill="url(#grad)">
+    <path d="M10 10h65c18 0 33 15 33 33s-15 33-33 33H10z" opacity=".95"/>
+    <path d="M90 10h30v66H90z" opacity=".85"/>
+    <path d="M130 10h80v15h-60c-10 0-18 8-18 18s8 18 18 18h60v15h-80c-18 0-33-15-33-33s15-33 33-33z"/>
+    <path d="M152 29h36v12h-36a7 7 0 1 1 0-14z" fill="#f1f5f9" opacity=".9"/>
+  </g>
+</svg>
+

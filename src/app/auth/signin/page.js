@@ -104,48 +104,53 @@ export default function SignIn() {
 
   if (isCheckingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[color:var(--color-base)]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-blue-50 to-white">
         <div className="text-center space-y-4">
-          <div className="w-10 h-10 border-2 border-sky-400/50 border-t-sky-400 rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-400 text-sm">Checking session...</p>
+          <div className="w-10 h-10 border-2 border-blue-200 border-t-blue-900 rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600 text-sm font-medium">Checking session...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[color:var(--color-base)] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white via-blue-50 to-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute inset-0 bg-grid-slate opacity-30" style={{ backgroundSize: '140px 140px' }}></div>
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `linear-gradient(rgba(13, 110, 253, 0.1) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(13, 110, 253, 0.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }}></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo Section */}
         <div className="text-center mb-10 space-y-3">
           <Link href="/" className="inline-block group">
-            <h1 className="text-5xl font-black bg-gradient-to-r from-sky-200 via-cyan-200 to-indigo-200 bg-clip-text text-transparent tracking-tight group-hover:from-sky-100 group-hover:via-cyan-100 group-hover:to-indigo-100 transition-all duration-300">
+            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-900 via-blue-700 to-blue-900 bg-clip-text text-transparent tracking-tight group-hover:from-blue-800 group-hover:via-blue-600 group-hover:to-blue-800 transition-all duration-300">
               DILITECH
             </h1>
-            <p className="text-sm text-sky-300/80 font-semibold tracking-[0.2em] mt-1 uppercase">Computer Solutions</p>
+            <p className="text-sm text-blue-700 font-bold tracking-[0.2em] mt-1 uppercase">Computer Solutions</p>
           </Link>
-          <p className="text-slate-400 text-sm mt-4">Welcome back to the future of technology</p>
+          <p className="text-gray-600 text-sm mt-4 font-medium">Welcome back to the future of technology</p>
         </div>
 
         {/* Sign In Card */}
-        <div className="glass-panel p-8 space-y-6">
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-gray-200 p-8 space-y-6">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold text-white">Sign In</h2>
-            <p className="text-sm text-slate-400">Access your account to continue</p>
+            <h2 className="text-3xl font-black text-gray-900">Sign In</h2>
+            <p className="text-sm text-gray-600">Access your account to continue</p>
           </div>
           
           {/* Google Sign In */}
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 bg-white/95 hover:bg-white text-gray-900 font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl border border-white/20"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-blue-300"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -165,19 +170,19 @@ export default function SignIn() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700/50"></div>
+              <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[color:var(--surface-primary)] text-slate-500">Or continue with email</span>
+              <span className="px-4 bg-white text-gray-500 font-medium">Or continue with email</span>
             </div>
           </div>
 
           {/* Test Credentials */}
-          <div className="p-4 bg-sky-500/10 border border-sky-500/20 rounded-xl">
+          <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
             <button
               type="button"
               onClick={() => setShowCredentials(!showCredentials)}
-              className="w-full flex items-center justify-between text-sky-300 text-sm font-medium hover:text-sky-200 transition-colors"
+              className="w-full flex items-center justify-between text-blue-900 text-sm font-bold hover:text-blue-700 transition-colors"
             >
               <span className="flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,30 +196,30 @@ export default function SignIn() {
             </button>
             {showCredentials && (
               <div className="mt-4 space-y-3 text-sm">
-                <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                  <p className="text-white font-medium mb-2 flex items-center gap-2">
-                    <span className="text-sky-400">👤</span> Creator Account
+                <div className="p-4 bg-white rounded-lg border-2 border-blue-200">
+                  <p className="text-gray-900 font-bold mb-2 flex items-center gap-2">
+                    <span className="text-blue-600">👤</span> Creator Account
                   </p>
-                  <p className="text-slate-300 text-xs mb-1">Email: <span className="font-mono text-sky-300">{demoCredentials.client.email}</span></p>
-                  <p className="text-slate-300 text-xs mb-2">Password: <span className="font-mono text-sky-300">{demoCredentials.client.password}</span></p>
+                  <p className="text-gray-700 text-xs mb-1">Email: <span className="font-mono text-blue-900 font-semibold">{demoCredentials.client.email}</span></p>
+                  <p className="text-gray-700 text-xs mb-3">Password: <span className="font-mono text-blue-900 font-semibold">{demoCredentials.client.password}</span></p>
                   <button
                     type="button"
                     onClick={() => fillCredentials('client')}
-                    className="w-full text-xs bg-sky-600/80 hover:bg-sky-600 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+                    className="w-full text-xs bg-blue-900 hover:bg-blue-800 text-white px-3 py-2 rounded-lg transition-colors font-bold"
                   >
                     Autofill Creator
                   </button>
                 </div>
-                <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                  <p className="text-white font-medium mb-2 flex items-center gap-2">
-                    <span className="text-indigo-400">👑</span> Admin Account
+                <div className="p-4 bg-white rounded-lg border-2 border-blue-200">
+                  <p className="text-gray-900 font-bold mb-2 flex items-center gap-2">
+                    <span className="text-blue-600">👑</span> Admin Account
                   </p>
-                  <p className="text-slate-300 text-xs mb-1">Email: <span className="font-mono text-indigo-300">{demoCredentials.admin.email}</span></p>
-                  <p className="text-slate-300 text-xs mb-2">Password: <span className="font-mono text-indigo-300">{demoCredentials.admin.password}</span></p>
+                  <p className="text-gray-700 text-xs mb-1">Email: <span className="font-mono text-blue-900 font-semibold">{demoCredentials.admin.email}</span></p>
+                  <p className="text-gray-700 text-xs mb-3">Password: <span className="font-mono text-blue-900 font-semibold">{demoCredentials.admin.password}</span></p>
                   <button
                     type="button"
                     onClick={() => fillCredentials('admin')}
-                    className="w-full text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+                    className="w-full text-xs bg-blue-900 hover:bg-blue-800 text-white px-3 py-2 rounded-lg transition-colors font-bold"
                   >
                     Autofill Admin
                   </button>
@@ -226,16 +231,16 @@ export default function SignIn() {
           {/* Email Form */}
           <form onSubmit={handleEmailSignIn} className="space-y-5">
             {error && (
-              <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-200 text-sm flex items-start gap-2">
+              <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-900 text-sm flex items-start gap-3">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{error}</span>
+                <span className="font-medium">{error}</span>
               </div>
             )}
             
             <div className="space-y-2">
-              <label htmlFor="signin-email" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="signin-email" className="block text-sm font-bold text-gray-900">
                 Email address
               </label>
               <input
@@ -243,7 +248,7 @@ export default function SignIn() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                 placeholder="you@example.com"
                 required
                 aria-required="true"
@@ -251,7 +256,7 @@ export default function SignIn() {
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="signin-password" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="signin-password" className="block text-sm font-bold text-gray-900">
                 Password
               </label>
               <input
@@ -259,24 +264,24 @@ export default function SignIn() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                 placeholder="Enter your password"
                 required
                 aria-required="true"
               />
             </div>
             
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-sky-500 focus:ring-2 focus:ring-sky-500/50 focus:ring-offset-0 cursor-pointer" 
+                  className="w-4 h-4 rounded border-gray-300 bg-white text-blue-900 focus:ring-2 focus:ring-blue-900 focus:ring-offset-0 cursor-pointer" 
                 />
-                <span className="text-slate-400 group-hover:text-slate-300 transition-colors">Remember me</span>
+                <span className="text-gray-700 group-hover:text-gray-900 transition-colors font-medium">Remember me</span>
               </label>
               <Link 
                 href="/auth/forgot-password" 
-                className="text-sky-400 hover:text-sky-300 transition-colors font-medium"
+                className="text-blue-900 hover:text-blue-700 transition-colors font-bold"
               >
                 Forgot password?
               </Link>
@@ -285,7 +290,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:shadow-sky-500/20"
+              className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -299,12 +304,12 @@ export default function SignIn() {
           </form>
 
           {/* Sign Up Link */}
-          <div className="pt-4 border-t border-slate-700/50">
-            <p className="text-center text-slate-400 text-sm">
+          <div className="pt-4 border-t border-gray-200">
+            <p className="text-center text-gray-600 text-sm">
               Don't have an account?{' '}
               <Link 
                 href="/auth/signup" 
-                className="text-sky-400 hover:text-sky-300 font-semibold transition-colors"
+                className="text-blue-900 hover:text-blue-700 font-bold transition-colors"
               >
                 Sign up
               </Link>

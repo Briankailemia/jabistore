@@ -5,6 +5,7 @@ import { ApiResponse, createApiHandler } from '@/lib/apiResponse';
 import { apiRateLimiter } from '@/lib/middleware/rateLimiter';
 import { validateRequest } from '@/lib/middleware/validator';
 import logger from '@/lib/logger';
+import { logAudit } from '@/lib/auditLogger';
 import { z } from 'zod';
 
 // GET /api/products/[id] - Fetch single product
@@ -107,6 +108,15 @@ export const PUT = createApiHandler({
     logger.dbQuery('product.update', duration, { productId: id, adminId: session.user.id });
     logger.info('Product updated', { productId: id, adminId: session.user.id });
 
+    await logAudit({
+      action: 'PRODUCT_UPDATE',
+      userId: session.user.id,
+      entityType: 'product',
+      entityId: id,
+      details: { updatedFields: Object.keys(data || {}) },
+      request,
+    });
+
     return ApiResponse.success(product, 'Product updated successfully');
   },
 })
@@ -135,6 +145,14 @@ export const DELETE = createApiHandler({
 
     logger.dbQuery('product.delete', duration, { productId: id, adminId: session.user.id });
     logger.info('Product deleted', { productId: id, adminId: session.user.id });
+
+    await logAudit({
+      action: 'PRODUCT_DELETE',
+      userId: session.user.id,
+      entityType: 'product',
+      entityId: id,
+      request,
+    });
 
     return ApiResponse.success(null, 'Product deleted successfully');
   },

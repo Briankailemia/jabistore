@@ -47,8 +47,10 @@ export default function TrackOrderPage() {
           if (response.status === 401) throw new Error('You do not have access to this order')
           throw new Error('Unable to load tracking details')
         }
-        const data = await response.json()
-        setOrder(data)
+        const result = await response.json()
+        // Handle API response structure
+        const orderData = result.success && result.data ? result.data : result
+        setOrder(orderData)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -171,7 +173,7 @@ export default function TrackOrderPage() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className={`px-4 py-2 rounded-full text-xs font-semibold ${STATUS_BADGES[order.status] || 'bg-slate-800 border border-slate-700'}`}>
-              {order.status.toLowerCase()}
+              {order.status ? order.status.toLowerCase() : 'Unknown'}
             </span>
             {estimatedDelivery && (
               <span className="text-sm text-slate-300">Estimated delivery {formatDate(estimatedDelivery)}</span>
@@ -211,14 +213,14 @@ export default function TrackOrderPage() {
             {order.shippingAddress ? (
               <div className="mt-2 space-y-1">
                 <p className="text-white font-medium">
-                  {order.shippingAddress.firstName} {order.shippingAddress.lastName}
+                  {order.shippingAddress.fullName || `${order.shippingAddress.firstName || ''} ${order.shippingAddress.lastName || ''}`.trim() || 'Recipient'}
                 </p>
-                <p>{order.shippingAddress.address1}</p>
+                <p>{order.shippingAddress.street || order.shippingAddress.address1 || ''}</p>
                 {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
                 <p>
-                  {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}
+                  {order.shippingAddress.city || ''}{order.shippingAddress.city && order.shippingAddress.state ? ', ' : ''}{order.shippingAddress.state || ''} {order.shippingAddress.postalCode || ''}
                 </p>
-                <p>{order.shippingAddress.country}</p>
+                {order.shippingAddress.country && <p>{order.shippingAddress.country}</p>}
               </div>
             ) : (
               <p className="mt-2">No shipping address on file.</p>

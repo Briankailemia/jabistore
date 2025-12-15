@@ -4,13 +4,13 @@ import { cn } from '@/lib/cn'
 
 const VARIANTS = {
   primary:
-    'bg-gradient-to-r from-brand-sky via-brand-azure to-brand-indigo text-slate-950 border border-brand-sky/60 shadow-[0_15px_30px_rgba(15,23,42,0.4)] hover:translate-y-0.5 hover:shadow-blue-900/50',
+    'bg-blue-900 text-white border border-blue-800 shadow-lg hover:bg-blue-800 hover:shadow-xl active:scale-[0.98] transition-all duration-200',
   secondary:
-    'bg-[color:var(--surface-tertiary)] text-slate-100 border border-stroke-subtle hover:border-brand-sky/60 hover:text-white hover:bg-[color:var(--surface-highlight)]/20',
+    'bg-white text-gray-700 border border-gray-300 hover:border-blue-900 hover:text-blue-900 hover:bg-blue-50 active:scale-[0.98] transition-all duration-200',
   ghost:
-    'text-slate-200 hover:text-white border border-transparent hover:border-stroke-subtle/60',
+    'text-gray-700 hover:text-blue-900 border border-transparent hover:bg-blue-50 active:scale-[0.98] transition-all duration-200',
   outline:
-    'border border-stroke-strong text-white hover:border-brand-sky/70 hover:text-white bg-transparent',
+    'border-2 border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white active:scale-[0.98] transition-all duration-200',
 }
 
 const SIZES = {
@@ -21,10 +21,10 @@ const SIZES = {
 
 export function buttonClasses({ variant = 'primary', size = 'md', className } = {}) {
   return cn(
-    'inline-flex items-center justify-center rounded-2xl font-semibold tracking-tight transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-sky/60 focus-visible:ring-offset-[color:var(--surface-secondary)] gap-2',
+    'inline-flex items-center justify-center rounded-xl font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-900 focus-visible:ring-offset-white gap-2',
     VARIANTS[variant] || VARIANTS.primary,
     SIZES[size] || SIZES.md,
-    'disabled:opacity-60 disabled:cursor-not-allowed',
+    'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
     className,
   )
 }

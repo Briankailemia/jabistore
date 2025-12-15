@@ -40,3 +40,12 @@
 # *.tsbuildinfo
 # next-env.d.ts
 node_modules
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Uploaded files
+/public/uploads/*
+!/public/uploads/.gitkeep

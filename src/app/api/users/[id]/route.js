@@ -5,6 +5,7 @@ import { ApiResponse, createApiHandler } from '@/lib/apiResponse'
 import { apiRateLimiter } from '@/lib/middleware/rateLimiter'
 import { validateRequest } from '@/lib/middleware/validator'
 import logger from '@/lib/logger'
+import { logAudit } from '@/lib/auditLogger'
 import { z } from 'zod'
 
 // GET /api/users/[id] - Get single user details (admin only)
@@ -177,6 +178,15 @@ export const PUT = createApiHandler({
         updatedFields: Object.keys(updateData)
       })
 
+      await logAudit({
+        action: 'USER_UPDATE',
+        userId: session.user.id,
+        entityType: 'user',
+        entityId: id,
+        details: { updatedFields: Object.keys(updateData), roleChanged: data.role },
+        request,
+      })
+
       return ApiResponse.success({ user }, 'User updated successfully')
     } catch (error) {
       if (error.code === 'P2002') {
@@ -229,6 +239,15 @@ export const DELETE = createApiHandler({
       deletedUserId: id, 
       adminId: session.user.id,
       deletedUserEmail: user.email
+    })
+
+    await logAudit({
+      action: 'USER_DELETE',
+      userId: session.user.id,
+      entityType: 'user',
+      entityId: id,
+      details: { email: user.email },
+      request,
     })
 
     return ApiResponse.success(null, 'User deleted successfully')

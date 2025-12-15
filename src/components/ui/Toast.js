@@ -46,7 +46,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ addToast, success, error, info, warning, removeToast }}>
       {children}
-      <div className="fixed top-20 right-4 z-50 space-y-2 pointer-events-none">
+      <div className="fixed top-24 right-4 z-[9999] space-y-2 pointer-events-none">
         {toasts.map((toast) => (
           <Toast
             key={toast.id}
@@ -91,10 +91,10 @@ function Toast({ toast, onClose }) {
   }
 
   const styles = {
-    success: 'bg-emerald-500/90 text-white border-emerald-400',
-    error: 'bg-rose-500/90 text-white border-rose-400',
-    info: 'bg-sky-500/90 text-white border-sky-400',
-    warning: 'bg-amber-500/90 text-white border-amber-400',
+    success: 'bg-emerald-600 text-white border-2 border-emerald-500',
+    error: 'bg-red-600 text-white border-2 border-red-500',
+    info: 'bg-blue-600 text-white border-2 border-blue-500',
+    warning: 'bg-amber-600 text-white border-2 border-amber-500',
   }
 
   return (
@@ -102,8 +102,7 @@ function Toast({ toast, onClose }) {
       className={`
         pointer-events-auto
         min-w-[300px] max-w-md
-        bg-white/10 backdrop-blur-xl
-        border rounded-xl
+        border-2 rounded-xl
         p-4 shadow-2xl
         transform transition-all duration-300 ease-out
         ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}

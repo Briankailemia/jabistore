@@ -8,7 +8,7 @@ const categoriesData = [
     name: 'Laptops & Ultrabooks',
     description: 'Performance-tuned notebooks for building, gaming, and creating on the go.',
     slug: 'laptops-ultrabooks',
-    featured: true,
+        featured: true,
     accentColor: 'from-sky-500 to-blue-600',
     image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&w=1200&q=80',
   },
@@ -16,7 +16,7 @@ const categoriesData = [
     name: 'Smartphones & Wearables',
     description: 'Flagship devices engineered for pro-level photography and all-day productivity.',
     slug: 'smartphones-wearables',
-    featured: true,
+        featured: true,
     accentColor: 'from-indigo-500 to-purple-600',
     image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&w=1200&q=80',
   },
@@ -24,7 +24,7 @@ const categoriesData = [
     name: 'Tablets & 2-in-1',
     description: 'Convertibles and stylus-ready tablets for sketching, editing, and presenting.',
     slug: 'tablets-2-in-1',
-    featured: true,
+        featured: true,
     accentColor: 'from-cyan-500 to-teal-500',
     image: 'https://images.unsplash.com/photo-1504274066651-8d31a536b11a?auto=format&w=1200&q=80',
   },
@@ -32,7 +32,7 @@ const categoriesData = [
     name: 'Audio & Entertainment',
     description: 'Spatial audio, studio monitors, and immersive accessories tuned for fidelity.',
     slug: 'audio-entertainment',
-    featured: false,
+        featured: false,
     accentColor: 'from-fuchsia-500 to-rose-500',
     image: 'https://images.unsplash.com/photo-1470223991234-a9422ac10454?auto=format&w=1200&q=80',
   },
@@ -48,7 +48,7 @@ const categoriesData = [
     name: 'Smart Home',
     description: 'Secure hubs, sensors, and assistants that orchestrate the modern home.',
     slug: 'smart-home',
-    featured: false,
+        featured: false,
     accentColor: 'from-emerald-500 to-green-600',
     image: 'https://images.unsplash.com/photo-1498661367879-c21f058b81b2?auto=format&w=1200&q=80',
   },
@@ -56,7 +56,7 @@ const categoriesData = [
     name: 'Accessories & Essentials',
     description: 'Chargers, docks, and everyday tech that keep premium devices powered.',
     slug: 'accessories-essentials',
-    featured: false,
+        featured: false,
     accentColor: 'from-slate-500 to-gray-600',
     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&w=1200&q=80',
   },
@@ -87,8 +87,8 @@ const brandsData = [
     logo: 'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&w=600&q=80',
     website: 'https://lumina.example.com',
     primaryCategory: 'Smartphones & Wearables',
-    featured: true,
-  },
+        featured: true,
+      },
   {
     name: 'PulseGear Audio',
     description: 'Spatial soundscapes and studio-grade monitoring for creators.',
@@ -96,8 +96,8 @@ const brandsData = [
     logo: 'https://images.unsplash.com/photo-1475108791253-87523e02b533?auto=format&w=600&q=80',
     website: 'https://pulsegear.example.com',
     primaryCategory: 'Audio & Entertainment',
-    featured: true,
-  },
+        featured: true,
+      },
   {
     name: 'Vertex Performance',
     description: 'Thermally-optimized rigs and peripherals built for competitive gaming.',
@@ -105,8 +105,8 @@ const brandsData = [
     logo: 'https://images.unsplash.com/photo-1527443224154-dc2b63e9eacf?auto=format&w=600&q=80',
     website: 'https://vertex.example.com',
     primaryCategory: 'Gaming & Performance',
-    featured: true,
-  },
+        featured: true,
+      },
   {
     name: 'Atlas Smart Living',
     description: 'Interconnected hubs, sensors, and ambient computing experiences.',
@@ -114,8 +114,8 @@ const brandsData = [
     logo: 'https://images.unsplash.com/photo-1580894732930-41d0893e5be8?auto=format&w=600&q=80',
     website: 'https://atlas.example.com',
     primaryCategory: 'Smart Home',
-    featured: false,
-  },
+        featured: false,
+      },
   {
     name: 'Skyline Studio',
     description: 'Reference-grade creator gear tuned for film makers and sound designers.',
@@ -123,8 +123,8 @@ const brandsData = [
     logo: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&w=600&q=80',
     website: 'https://skyline.example.com',
     primaryCategory: 'Creator & Studio Gear',
-    featured: true,
-  },
+        featured: true,
+      },
   {
     name: 'NanoCore Essentials',
     description: 'Travel chargers, GaN bricks, and rugged cables that outlast the day.',
@@ -132,8 +132,8 @@ const brandsData = [
     logo: 'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&w=600&q=80',
     website: 'https://nanocore.example.com',
     primaryCategory: 'Accessories & Essentials',
-    featured: false,
-  },
+        featured: false,
+      },
 ]
 
 const productsData = [
@@ -146,7 +146,7 @@ const productsData = [
     price: 1899.0,
     originalPrice: 2099.0,
     stock: 12,
-    featured: true,
+        featured: true,
     categorySlug: 'laptops-ultrabooks',
     brandSlug: 'aerobook',
     images: [
@@ -168,7 +168,7 @@ const productsData = [
       { name: 'Storage', value: '2TB NVMe Gen4 SSD' },
     ],
   },
-  {
+    {
     name: 'AeroBook Air 13 Carbon',
     slug: 'aerobook-air-13-carbon',
     sku: 'ABL-AIR13',
@@ -177,7 +177,7 @@ const productsData = [
     price: 1399.0,
     originalPrice: 1499.0,
     stock: 24,
-    featured: true,
+      featured: true,
     categorySlug: 'laptops-ultrabooks',
     brandSlug: 'aerobook',
     images: [
@@ -187,15 +187,15 @@ const productsData = [
       },
     ],
     features: ['Carbon fiber shell', 'Fingerprint unlock', '65W USB-C fast charge'],
-    specifications: [
+      specifications: [
       { name: 'CPU', value: 'Intel Core Ultra 7 165H' },
       { name: 'Display', value: '13.5” 2.8K IPS, 500 nits' },
       { name: 'Memory', value: '16GB LPDDR5X' },
       { name: 'Storage', value: '1TB NVMe' },
       { name: 'Weight', value: '0.99 kg' },
-    ],
-  },
-  {
+      ],
+    },
+    {
     name: 'Lumina One Pro 5G',
     slug: 'lumina-one-pro',
     sku: 'LMN-ONEPRO',
@@ -204,7 +204,7 @@ const productsData = [
     price: 1199.0,
     originalPrice: 1299.0,
     stock: 40,
-    featured: true,
+      featured: true,
     categorySlug: 'smartphones-wearables',
     brandSlug: 'lumina-mobile',
     images: [
@@ -240,15 +240,15 @@ const productsData = [
       },
     ],
     features: ['Ultra hinge with zero-gap', 'Nano-textured stylus glass', 'Dual batteries'],
-    specifications: [
+      specifications: [
       { name: 'Display', value: '7.1” inner OLED + 3.4” cover' },
       { name: 'Memory', value: '12GB LPDDR5X' },
       { name: 'Storage', value: '512GB UFS 4.0' },
       { name: 'Stylus', value: 'Lumina Pen 2 support' },
       { name: 'Audio', value: 'Quad spatial speakers' },
-    ],
-  },
-  {
+      ],
+    },
+    {
     name: 'PulseGear SonicMax Studio',
     slug: 'pulsegear-sonicmax',
     sku: 'PLG-SMAX',
@@ -256,7 +256,7 @@ const productsData = [
     price: 499.0,
     originalPrice: 599.0,
     stock: 35,
-    featured: true,
+      featured: true,
     categorySlug: 'audio-entertainment',
     brandSlug: 'pulsegear',
     images: [
@@ -266,15 +266,15 @@ const productsData = [
       },
     ],
     features: ['Planar magnetic drivers', 'Dual Bluetooth + balanced wired', 'Spatial HeadTracking'],
-    specifications: [
+      specifications: [
       { name: 'Driver', value: '98mm planar magnetic' },
       { name: 'Battery', value: '45 hours ANC on' },
       { name: 'Latency', value: '28 ms gaming mode' },
       { name: 'Codecs', value: 'LDAC, aptX Lossless' },
       { name: 'Weight', value: '310 g' },
-    ],
-  },
-  {
+      ],
+    },
+    {
     name: 'Vertex Ignite 15 Mini-LED',
     slug: 'vertex-ignite-15',
     sku: 'VTX-IG15',
@@ -292,15 +292,15 @@ const productsData = [
       },
     ],
     features: ['Liquid metal cooling', 'Opto-mechanical keyboard', 'AI upscaling webcam'],
-    specifications: [
+      specifications: [
       { name: 'CPU', value: 'AMD Ryzen 9 9955HX' },
       { name: 'GPU', value: 'NVIDIA RTX 4090 16GB' },
       { name: 'Display', value: '15.6” QHD+ mini-LED 240Hz' },
       { name: 'Memory', value: '64GB DDR5-6400' },
       { name: 'Storage', value: '2 x 2TB NVMe RAID' },
-    ],
-  },
-  {
+      ],
+    },
+    {
     name: 'Atlas Horizon Hub Max',
     slug: 'atlas-horizon-hub',
     sku: 'ATL-HUBMAX',
@@ -308,7 +308,7 @@ const productsData = [
     price: 349.0,
     originalPrice: 399.0,
     stock: 60,
-    featured: false,
+      featured: false,
     categorySlug: 'smart-home',
     brandSlug: 'atlas',
     images: [
@@ -318,15 +318,15 @@ const productsData = [
       },
     ],
     features: ['Thread + Matter border router', 'Local ML automations', 'Encrypted remote access'],
-    specifications: [
+      specifications: [
       { name: 'Connectivity', value: 'Wi-Fi 7, Thread, Zigbee, BLE 5.4' },
       { name: 'Storage', value: '128GB secure flash' },
       { name: 'Voice', value: 'Multilingual far-field array' },
       { name: 'Security', value: 'Hardware secure enclave' },
       { name: 'Integrations', value: '3,500+ devices' },
-    ],
-  },
-  {
+      ],
+    },
+    {
     name: 'Skyline Creator Pro 32" Reference',
     slug: 'skyline-creator-pro',
     sku: 'SKY-REF32',
@@ -334,7 +334,7 @@ const productsData = [
     price: 2799.0,
     originalPrice: 2999.0,
     stock: 5,
-    featured: true,
+      featured: true,
     categorySlug: 'creator-gear',
     brandSlug: 'skyline',
     images: [
@@ -370,7 +370,7 @@ const productsData = [
       },
     ],
     features: ['130W GaN charging', 'NVMe SSD enclosure', 'Dual HDMI 2.0'],
-    specifications: [
+      specifications: [
       { name: 'Power Delivery', value: '100W USB-C + 30W USB-A' },
       { name: 'USB Ports', value: '2 x USB4, 2 x USB-A 10Gbps' },
       { name: 'Video', value: 'Dual 4K60 or single 8K' },
@@ -401,7 +401,7 @@ const couponsData = [
     minOrderAmount: 0,
     usageLimit: 200,
     userUsageLimit: 5,
-  },
+    },
 ]
 
 async function resetDatabase() {

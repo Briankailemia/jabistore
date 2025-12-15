@@ -1,5 +1,22 @@
 {
-  "node": {},
+  "node": {
+    "40730ba6f41708c194c0de7e9e67b1e1518b46925b": {
+      "workers": {
+        "app/api/settings/route": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fuser%2FDesktop%2FRogueApe%2Fwork%2Fjabistore%2Fsrc%2Flib%2FauditLogger.js%22%2C%5B%5B%2240730ba6f41708c194c0de7e9e67b1e1518b46925b%22%2C%22logAudit%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/api/coupons/[id]/route": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fuser%2FDesktop%2FRogueApe%2Fwork%2Fjabistore%2Fsrc%2Flib%2FauditLogger.js%22%2C%5B%5B%2240730ba6f41708c194c0de7e9e67b1e1518b46925b%22%2C%22logAudit%22%5D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/api/settings/route": "rsc",
+        "app/api/coupons/[id]/route": "rsc"
+      }
+    }
+  },
   "edge": {},
   "encryptionKey": "g1FifcDftN/RB3YDS0bEDtf9+SI0XztC7EHjikOWKQM="
 }

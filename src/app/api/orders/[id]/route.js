@@ -5,6 +5,7 @@ import { ApiResponse, createApiHandler } from '@/lib/apiResponse'
 import { apiRateLimiter } from '@/lib/middleware/rateLimiter'
 import { validateRequest } from '@/lib/middleware/validator'
 import logger from '@/lib/logger'
+import { logAudit } from '@/lib/auditLogger'
 import { z } from 'zod'
 
 const updateOrderSchema = z.object({
@@ -122,6 +123,15 @@ export const PUT = createApiHandler({
 
     logger.dbQuery('order.update', duration, { orderId: params.id, adminId: session.user.id })
     logger.info('Order updated', { orderId: params.id, adminId: session.user.id, fields: Object.keys(updateData) })
+
+    await logAudit({
+      action: 'ORDER_UPDATE',
+      userId: session.user.id,
+      entityType: 'order',
+      entityId: params.id,
+      details: { updatedFields: Object.keys(updateData), status: data.status, paymentStatus: data.paymentStatus },
+      request,
+    })
 
     return ApiResponse.success(order, 'Order updated successfully')
   },

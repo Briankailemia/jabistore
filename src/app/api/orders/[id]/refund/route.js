@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { ApiResponse, createApiHandler } from '@/lib/apiResponse'
 import { apiRateLimiter } from '@/lib/middleware/rateLimiter'
 import logger from '@/lib/logger'
+import { logAudit } from '@/lib/auditLogger'
 
 // POST /api/orders/[id]/refund - Process refund for an order (admin only)
 export const POST = createApiHandler({
@@ -50,6 +51,15 @@ export const POST = createApiHandler({
 
     logger.dbQuery('order.update', duration, { orderId: params.id, action: 'refund' })
     logger.info('Order refunded', { orderId: params.id, adminId: session.user.id })
+
+  await logAudit({
+    action: 'ORDER_REFUND',
+    userId: session.user.id,
+    entityType: 'order',
+    entityId: params.id,
+    details: { previousStatus: order.paymentStatus },
+    request,
+  })
 
     // TODO: Integrate with payment gateway (Stripe/M-Pesa) to process actual refund
 

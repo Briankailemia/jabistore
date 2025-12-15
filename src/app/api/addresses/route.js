@@ -11,29 +11,34 @@ import { z } from 'zod'
 export const GET = createApiHandler({
   rateLimiter: apiRateLimiter,
   handler: async (request) => {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return ApiResponse.unauthorized()
+    try {
+      const session = await getServerSession(authOptions)
+      
+      if (!session?.user?.id) {
+        return ApiResponse.unauthorized()
+      }
+
+      const startTime = Date.now()
+      const addresses = await prisma.address.findMany({
+        where: {
+          userId: session.user.id,
+          type: 'SHIPPING'
+        },
+        orderBy: [
+          { isDefault: 'desc' },
+          { updatedAt: 'desc' }
+        ]
+      })
+      const duration = Date.now() - startTime
+
+      logger.dbQuery('address.findMany', duration, { userId: session.user.id })
+      logger.info('Addresses fetched', { userId: session.user.id, count: addresses.length })
+
+      return ApiResponse.success(addresses)
+    } catch (error) {
+      logger.error('Error fetching addresses:', error)
+      return ApiResponse.error('Failed to fetch addresses', 500)
     }
-
-    const startTime = Date.now()
-    const addresses = await prisma.address.findMany({
-      where: {
-        userId: session.user.id,
-        type: 'SHIPPING'
-      },
-      orderBy: [
-        { isDefault: 'desc' },
-        { updatedAt: 'desc' }
-      ]
-    })
-    const duration = Date.now() - startTime
-
-    logger.dbQuery('address.findMany', duration, { userId: session.user.id })
-    logger.info('Addresses fetched', { userId: session.user.id, count: addresses.length })
-
-    return ApiResponse.success(addresses)
   },
 })
 
@@ -57,13 +62,14 @@ export const POST = createApiHandler({
   rateLimiter: apiRateLimiter,
   validator: validateRequest(createAddressSchema),
   handler: async (request) => {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return ApiResponse.unauthorized()
-    }
+    try {
+      const session = await getServerSession(authOptions)
+      
+      if (!session?.user?.id) {
+        return ApiResponse.unauthorized()
+      }
 
-    const data = request.validatedData
+      const data = request.validatedData
 
     // If this is set as default, unset other default addresses
     if (data.isDefault) {
@@ -134,6 +140,10 @@ export const POST = createApiHandler({
       existingAddress ? 'Address updated successfully' : 'Address created successfully',
       existingAddress ? 200 : 201
     )
+    } catch (error) {
+      logger.error('Error saving address:', error)
+      return ApiResponse.error('Failed to save address', 500)
+    }
   },
 })
 

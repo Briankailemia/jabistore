@@ -20,18 +20,18 @@ export const GET = createApiHandler({
     const startTime = Date.now()
     const [reviews, total] = await Promise.all([
       prisma.review.findMany({
-        where,
-        include: {
-          user: {
-            select: { name: true, avatar: true }
-          },
-          product: {
-            select: { name: true, slug: true }
-          }
+      where,
+      include: {
+        user: {
+          select: { name: true, avatar: true }
         },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset
+        product: {
+          select: { name: true, slug: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset
       }),
       prisma.review.count({ where })
     ])

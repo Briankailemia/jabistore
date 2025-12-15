@@ -3,61 +3,32 @@
 @tailwind utilities;
 
 :root {
-  --color-base: #0a1021;
-  --color-base-alt: #111b33;
-  --color-foreground: #f8fbff;
-  --color-muted: #c8d7ff;
-  --color-subtle: #9fb3d7;
-  --surface-primary: rgba(15, 22, 40, 0.95);
-  --surface-secondary: rgba(22, 30, 52, 0.88);
-  --surface-tertiary: rgba(30, 41, 66, 0.82);
-  --surface-highlight: rgba(94, 234, 255, 0.08);
-  --border-soft: rgba(148, 163, 184, 0.22);
-  --border-strong: rgba(148, 163, 184, 0.4);
-  --glow-sky: #38bdf8;
-  --glow-indigo: #818cf8;
-  --radius-lg: 18px;
-  --radius-xl: 28px;
-  --noise-layer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  --color-base: #ffffff;
+  --color-base-alt: #f8f9fa;
+  --color-foreground: #000000;
+  --color-muted: #6c757d;
+  --color-subtle: #adb5bd;
+  --surface-primary: rgba(255, 255, 255, 0.98);
+  --surface-secondary: rgba(248, 249, 250, 0.95);
+  --surface-tertiary: rgba(240, 242, 245, 0.9);
+  --surface-highlight: rgba(13, 110, 253, 0.1);
+  --border-soft: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.2);
+  --glow-sky: #0d6efd;
+  --glow-indigo: #6610f2;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 body {
   min-height: 100vh;
   background-color: var(--color-base);
-  background-image:
-    radial-gradient(circle at 20% 15%, rgba(15, 118, 255, 0.3), transparent 55%),
-    radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.28), transparent 45%),
-    linear-gradient(130deg, rgba(16, 23, 41, 0.9), rgba(5, 8, 18, 0.96)),
-    var(--noise-layer);
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
   color: var(--color-foreground);
   font-family: var(--font-geist-sans), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-body::before,
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-body::before {
-  background: radial-gradient(circle at 5% 20%, rgba(56, 189, 248, 0.25), transparent 40%);
-  opacity: 0.7;
-  filter: blur(120px);
-}
-
-body::after {
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 0),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 0),
-    linear-gradient(135deg, rgba(99, 102, 241, 0.08), transparent 70%);
-  background-size: 140px 140px, 140px 140px, 100% 100%;
-  opacity: 0.4;
 }
 
 @layer base {
@@ -80,7 +51,7 @@ body::after {
   h4,
   h5,
   h6 {
-    @apply text-white font-semibold tracking-tight;
+    @apply text-black font-semibold tracking-tight;
   }
 
   a {
@@ -88,7 +59,7 @@ body::after {
   }
 
   ::selection {
-    @apply bg-sky-500 text-white;
+    @apply bg-blue-500 text-white;
   }
 
   main {
@@ -102,28 +73,45 @@ body::after {
 }
 
 @layer components {
-  .glass-panel {
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, var(--surface-secondary), rgba(13, 22, 40, 0.6));
-    border: 1px solid var(--border-soft);
-    box-shadow: 0 25px 90px rgba(5, 10, 25, 0.45);
-    position: relative;
-    overflow: hidden;
+  /* Smooth scrolling for better UX */
+  html {
+    scroll-behavior: smooth;
   }
 
-  .glass-panel::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    border: 1px solid rgba(255, 255, 255, 0.02);
-    pointer-events: none;
+  /* Focus visible improvements */
+  *:focus-visible {
+    outline: 2px solid var(--glow-sky);
+    outline-offset: 2px;
+  }
+
+  /* Better link styling */
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Improved button interactions */
+  button {
+    @apply transition-all duration-200;
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
+
+  .glass-panel {
+    border-radius: var(--radius-xl);
+    background: var(--surface-primary);
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
   }
 
   .pill {
     border-radius: 9999px;
     border: 1px solid var(--border-soft);
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--surface-secondary);
     color: var(--color-foreground);
     font-size: 0.75rem;
     letter-spacing: 0.25em;
@@ -138,7 +126,7 @@ body::after {
     position: relative;
     border-radius: var(--radius-xl);
     padding: 1px;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(129, 140, 248, 0.3));
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.3), rgba(13, 110, 253, 0.2));
   }
 
   .gradient-outline > * {

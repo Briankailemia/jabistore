@@ -58,7 +58,7 @@ const officeHighlights = [
 ]
 
 const baseInputClasses =
-  'w-full rounded-2xl border border-white/10 bg-[color:var(--surface-tertiary)]/80 px-4 py-3 text-sm text-white placeholder:text-slate-400 focus:border-brand-sky/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-sky'
+  'w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-900 focus:ring-2 focus:ring-blue-900 focus:outline-none transition-all'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -85,48 +85,97 @@ export default function ContactPage() {
     event.preventDefault()
     if (isSubmitting) return
     setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1600))
-    setIsSubmitting(false)
-    setSubmittedAt(new Date())
-    setFormData({ name: '', email: '', subject: '', message: '', category: 'general' })
-    setTimeout(() => setSubmittedAt(null), 3200)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          category: selectedCategory?.label || formData.category,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to send message')
+      }
+
+      setIsSubmitting(false)
+      setSubmittedAt(new Date())
+      setFormData({ name: '', email: '', subject: '', message: '', category: 'general' })
+      setTimeout(() => setSubmittedAt(null), 5000)
+    } catch (error) {
+      console.error('Error sending contact form:', error)
+      setIsSubmitting(false)
+      alert(error.message || 'Failed to send message. Please try again later.')
+    }
   }
 
   return (
-    <div className="bg-transparent text-white">
-      <div className="mx-auto max-w-7xl space-y-16 px-4 py-12 sm:px-6 lg:px-8">
-        <section className="relative overflow-hidden rounded-[36px] border border-white/5 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-16 sm:px-12">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-24 left-[30%] h-72 w-72 rounded-full bg-sky-500/15 blur-3xl" />
-            <div className="absolute -bottom-32 right-10 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
-          </div>
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 px-8 py-16 sm:px-12">
+          {/* Grid Pattern Background */}
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+          
+          {/* Glowing Orbs */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
+          
           <div className="relative z-10 grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Concierge desk
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-xs uppercase tracking-[0.3em] text-white">
+                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                Concierge Desk
               </p>
-              <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Talk to the humans powering Dilitech Solutions
+              <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                Talk to the humans powering Dilitech Solutions
               </h1>
-              <p className="text-lg text-slate-300">
+              <p className="text-xl text-blue-100 leading-relaxed">
                 Whether you are orchestrating a global rollout or testing a single device, our specialists respond in
                 hours, not days.
               </p>
-              <div className="flex flex-wrap gap-3 text-sm text-slate-300">
-                <span className="rounded-full border border-slate-700 px-3 py-1">24/7 coverage</span>
-                <span className="rounded-full border border-slate-700 px-3 py-1">Global rollout teams</span>
-                <span className="rounded-full border border-slate-700 px-3 py-1">SOC 2 ready</span>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <span className="rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-white">24/7 coverage</span>
+                <span className="rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-white">Global rollout teams</span>
+                <span className="rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-white">SOC 2 ready</span>
+              </div>
+              
+              {/* WhatsApp Quick Action */}
+              <div className="pt-4">
+                <a
+                  href="https://wa.me/254709000111?text=Hello%2C%20I%20need%20support%20from%20Dilitech%20Solutions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 rounded-xl bg-green-600 hover:bg-green-700 text-white px-6 py-4 font-bold transition-colors shadow-lg hover:shadow-xl"
+                >
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  Chat on WhatsApp
+                </a>
               </div>
             </div>
-          <Card className="relative overflow-hidden p-8">
+            <Card className="relative overflow-hidden p-8 bg-white/10 backdrop-blur-sm border-white/20">
               <div className="grid gap-6 sm:grid-cols-2">
                 <HighlightStat label="Avg. first reply" value="4h" caption="Follow the sun" />
                 <HighlightStat label="Regions covered" value="42" caption="AMER / EMEA / APAC" />
                 <HighlightStat label="CSAT" value="98%" caption="Rolling 90 days" />
                 <HighlightStat label="On-site pods" value="12" caption="Embedded teams" />
               </div>
-              <div className="mt-8 text-sm text-slate-300">
+              <div className="mt-8 text-sm text-blue-100">
                 <p>Need a live session? Ping the in product chat or call +1 (415) 915-2040.</p>
               </div>
             </Card>
@@ -134,22 +183,22 @@ export default function ContactPage() {
         </section>
 
         <section className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <Card className="p-8">
+          <Card className="p-8 bg-white border-gray-200">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Message us</p>
-              <h2 className="text-2xl font-semibold text-white">Tell us what you need</h2>
-              <p className="text-sm text-slate-400">Our concierge team replies within a single business morning.</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">Message us</p>
+              <h2 className="text-2xl font-black text-gray-900">Tell us what you need</h2>
+              <p className="text-sm text-gray-600">Our concierge team replies within a single business morning.</p>
             </div>
 
             {submittedAt ? (
-              <div className="mt-10 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center text-emerald-100">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/30">
-                  <svg className="h-8 w-8 text-emerald-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <div className="mt-10 rounded-3xl border-2 border-green-200 bg-green-50 p-8 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100">
+                  <svg className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p className="text-xl font-semibold">We received your message</p>
-                <p className="text-sm text-emerald-200">Expect a response within four hours. Keep an eye on your inbox.</p>
+                <p className="text-xl font-black text-gray-900">We received your message</p>
+                <p className="text-sm text-gray-700 mt-2">Expect a response within four hours. Keep an eye on your inbox.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -194,7 +243,7 @@ export default function ContactPage() {
                 </Field>
 
                 <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Routing</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">Routing</p>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {contactMethods.map((method) => (
                       <ContactMethodButton
@@ -205,7 +254,7 @@ export default function ContactPage() {
                       />
                     ))}
                   </div>
-                  {selectedCategory && <p className="text-sm text-slate-400">{selectedCategory.description}</p>}
+                  {selectedCategory && <p className="text-sm text-gray-600">{selectedCategory.description}</p>}
                 </div>
 
                 <Field
@@ -245,50 +294,63 @@ export default function ContactPage() {
                 Reach the same concierge team through any channel. Include your order number or workspace ID for the fastest
                 routing.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <a href="tel:+14159152040" className={buttonClasses({ variant: 'secondary', className: 'flex-1 text-center' })}>
-                  Call operations
-                </a>
-                <a
-                  href="mailto:support@dilitechsolutions.com"
-                  className={buttonClasses({ variant: 'primary', className: 'flex-1 text-center' })}
+              <div className="mt-6 space-y-3">
+                <a 
+                  href="https://wa.me/254709000111?text=Hello%2C%20I%20need%20support%20from%20Dilitech%20Solutions" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(buttonClasses({ variant: 'primary', className: 'w-full text-center flex items-center justify-center gap-2' }), 'bg-green-600 hover:bg-green-700')}
                 >
-                  Email support
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  Chat on WhatsApp
                 </a>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <a href="tel:+14159152040" className={buttonClasses({ variant: 'secondary', className: 'flex-1 text-center' })}>
+                    Call operations
+                  </a>
+                  <a
+                    href="/support/email"
+                    className={buttonClasses({ variant: 'secondary', className: 'flex-1 text-center' })}
+                  >
+                    Email support
+                  </a>
+                </div>
               </div>
             </Card>
 
-            <Card className="space-y-4 p-6">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Offices and reach</p>
+            <Card className="space-y-4 p-6 bg-white border-gray-200">
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">Offices and reach</p>
               {officeHighlights.map((item) => (
                 <OfficeHighlight key={item.title} {...item} />
               ))}
             </Card>
 
-            <Card className="space-y-6 p-6">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Self serve</p>
-              <div className="space-y-3 text-sm text-slate-300">
-                <Link href="/support" className="flex items-center justify-between text-sky-300 hover:text-sky-100">
+            <Card className="space-y-6 p-6 bg-white border-gray-200">
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">Self serve</p>
+              <div className="space-y-3 text-sm">
+                <Link href="/support" className="flex items-center justify-between text-blue-900 hover:text-blue-700 font-semibold transition-colors">
                   Help center
-                  <span aria-hidden="true">{'>'}</span>
+                  <span aria-hidden="true">→</span>
                 </Link>
                 <Link
                   href="/support/shipping"
-                  className="flex items-center justify-between text-sky-300 hover:text-sky-100"
+                  className="flex items-center justify-between text-blue-900 hover:text-blue-700 font-semibold transition-colors"
                 >
                   Shipping and logistics
-                  <span aria-hidden="true">{'>'}</span>
+                  <span aria-hidden="true">→</span>
                 </Link>
                 <Link
                   href="/support/warranty"
-                  className="flex items-center justify-between text-sky-300 hover:text-sky-100"
+                  className="flex items-center justify-between text-blue-900 hover:text-blue-700 font-semibold transition-colors"
                 >
                   Warranty and protection
-                  <span aria-hidden="true">{'>'}</span>
+                  <span aria-hidden="true">→</span>
                 </Link>
-                <Link href="/support/returns" className="flex items-center justify-between text-sky-300 hover:text-sky-100">
+                <Link href="/support/returns" className="flex items-center justify-between text-blue-900 hover:text-blue-700 font-semibold transition-colors">
                   Returns and RMA desk
-                  <span aria-hidden="true">{'>'}</span>
+                  <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </Card>
@@ -316,11 +378,11 @@ export default function ContactPage() {
 function Field({ htmlFor, label, required, helper, children }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={htmlFor} className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+      <label htmlFor={htmlFor} className="text-xs font-bold uppercase tracking-[0.3em] text-gray-700">
         {label}
-        {required && <span className="text-rose-400"> *</span>}
+        {required && <span className="text-red-600"> *</span>}
       </label>
-      {helper && <p className="text-xs text-slate-500">{helper}</p>}
+      {helper && <p className="text-xs text-gray-500">{helper}</p>}
       {children}
     </div>
   )
@@ -333,43 +395,43 @@ function ContactMethodButton({ method, active, onSelect }) {
       aria-pressed={active}
       onClick={() => onSelect(method.value)}
       className={cn(
-        'rounded-2xl border px-4 py-3 text-left text-sm transition',
+        'rounded-xl border-2 px-4 py-3 text-left text-sm transition-all duration-200',
         active
-          ? 'border-sky-500 bg-sky-500/10 text-white shadow-glow'
-          : 'border-slate-800 bg-slate-900/40 text-slate-300 hover:border-slate-600',
+          ? 'border-blue-900 bg-blue-900 text-white shadow-lg'
+          : 'border-gray-200 bg-white text-gray-700 hover:border-blue-500 hover:bg-blue-50',
       )}
     >
-      <p className="font-semibold">{method.label}</p>
-      <p className="text-xs text-slate-400">{method.description}</p>
+      <p className="font-bold">{method.label}</p>
+      <p className="text-xs mt-1 opacity-80">{method.description}</p>
     </button>
   )
 }
 
 function HighlightStat({ label, value, caption }) {
   return (
-    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
-      <p className="text-xs text-slate-400">{caption}</p>
+    <div className="rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm p-4">
+      <p className="text-xs uppercase tracking-[0.3em] text-blue-200">{label}</p>
+      <p className="mt-2 text-3xl font-black text-white">{value}</p>
+      <p className="text-xs text-blue-100">{caption}</p>
     </div>
   )
 }
 
 function OfficeHighlight({ title, detail }) {
   return (
-    <div className="border-b border-slate-800 pb-4 last:border-none last:pb-0">
-      <p className="text-sm font-semibold text-white">{title}</p>
-      <p className="text-sm text-slate-400">{detail}</p>
+    <div className="border-b border-gray-200 pb-4 last:border-none last:pb-0">
+      <p className="text-sm font-bold text-gray-900">{title}</p>
+      <p className="text-sm text-gray-600">{detail}</p>
     </div>
   )
 }
 
 function QuickAnswer({ question, answer }) {
   return (
-    <Card className="p-6">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">FAQ</p>
-      <h3 className="mt-3 text-xl font-semibold text-white">{question}</h3>
-      <p className="mt-2 text-sm text-slate-300">{answer}</p>
+    <Card className="p-6 bg-white border-gray-200">
+      <p className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">FAQ</p>
+      <h3 className="mt-3 text-xl font-bold text-gray-900">{question}</h3>
+      <p className="mt-2 text-sm text-gray-600">{answer}</p>
     </Card>
   )
 }

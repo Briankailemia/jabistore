@@ -11,40 +11,47 @@ import { z } from 'zod'
 export const GET = createApiHandler({
   rateLimiter: apiRateLimiter,
   handler: async (request) => {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return ApiResponse.unauthorized()
-    }
+    try {
+      const session = await getServerSession(authOptions)
+      
+      // Return empty cart for unauthenticated users instead of 401
+      if (!session?.user?.id) {
+        return ApiResponse.success([])
+      }
 
-    const startTime = Date.now()
-    const cartItems = await prisma.cartItem.findMany({
-      where: {
-        userId: session.user.id
-      },
-      include: {
-        product: {
-          include: {
-            images: {
-              orderBy: { order: 'asc' },
-              take: 1
-            },
-            category: {
-              select: { name: true }
-            },
-            brand: {
-              select: { name: true }
+      const startTime = Date.now()
+      const cartItems = await prisma.cartItem.findMany({
+        where: {
+          userId: session.user.id
+        },
+        include: {
+          product: {
+            include: {
+              images: {
+                orderBy: { order: 'asc' },
+                take: 1
+              },
+              category: {
+                select: { name: true }
+              },
+              brand: {
+                select: { name: true }
+              }
             }
           }
         }
-      }
-    })
-    const duration = Date.now() - startTime
+      })
+      const duration = Date.now() - startTime
 
-    logger.dbQuery('cartItem.findMany', duration, { userId: session.user.id })
-    logger.info('Cart fetched', { userId: session.user.id, itemCount: cartItems.length })
+      logger.dbQuery('cartItem.findMany', duration, { userId: session.user.id })
+      logger.info('Cart fetched', { userId: session.user.id, itemCount: cartItems.length })
 
-    return ApiResponse.success(cartItems)
+      return ApiResponse.success(cartItems)
+    } catch (error) {
+      logger.error('Error fetching cart:', error)
+      // Return empty array on error to prevent UI breakage
+      return ApiResponse.success([])
+    }
   },
 })
 
@@ -58,100 +65,105 @@ export const POST = createApiHandler({
   rateLimiter: apiRateLimiter,
   validator: validateRequest(addToCartSchema),
   handler: async (request) => {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return ApiResponse.unauthorized()
-    }
-
-    const { productId, quantity = 1 } = request.validatedData
-
-    // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      select: { id: true, stock: true, published: true }
-    })
-
-    if (!product) {
-      return ApiResponse.notFound('Product not found')
-    }
-
-    if (!product.published) {
-      return ApiResponse.error('Product is not available', 400)
-    }
-
-    if (product.stock < quantity) {
-      return ApiResponse.error(`Only ${product.stock} items available in stock`, 400)
-    }
-
-    // Check if item already exists in cart
-    const existingCartItem = await prisma.cartItem.findUnique({
-      where: {
-        userId_productId: {
-          userId: session.user.id,
-          productId: productId
-        }
-      }
-    })
-
-    let cartItem
-    const startTime = Date.now()
-
-    if (existingCartItem) {
-      // Update quantity if item exists
-      const newQuantity = existingCartItem.quantity + quantity
-      if (newQuantity > product.stock) {
-        return ApiResponse.error(`Cannot add more items. Only ${product.stock} available in stock`, 400)
+    try {
+      const session = await getServerSession(authOptions)
+      
+      if (!session?.user?.id) {
+        return ApiResponse.unauthorized()
       }
 
-      cartItem = await prisma.cartItem.update({
+      const { productId, quantity = 1 } = request.validatedData
+
+      // Check if product exists
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true, stock: true, published: true }
+      })
+
+      if (!product) {
+        return ApiResponse.notFound('Product not found')
+      }
+
+      if (!product.published) {
+        return ApiResponse.error('Product is not available', 400)
+      }
+
+      if (product.stock < quantity) {
+        return ApiResponse.error(`Only ${product.stock} items available in stock`, 400)
+      }
+
+      // Check if item already exists in cart
+      const existingCartItem = await prisma.cartItem.findUnique({
         where: {
-          id: existingCartItem.id
-        },
-        data: {
-          quantity: newQuantity
-        },
-        include: {
-          product: {
-            include: {
-              images: {
-                orderBy: { order: 'asc' },
-                take: 1
-              }
-            }
+          userId_productId: {
+            userId: session.user.id,
+            productId: productId
           }
         }
       })
-    } else {
-      // Create new cart item
-      cartItem = await prisma.cartItem.create({
-        data: {
-          userId: session.user.id,
-          productId: productId,
-          quantity: quantity
-        },
-        include: {
-          product: {
-            include: {
-              images: {
-                orderBy: { order: 'asc' },
-                take: 1
+
+      let cartItem
+      const startTime = Date.now()
+
+      if (existingCartItem) {
+        // Update quantity if item exists
+        const newQuantity = existingCartItem.quantity + quantity
+        if (newQuantity > product.stock) {
+          return ApiResponse.error(`Cannot add more items. Only ${product.stock} available in stock`, 400)
+        }
+
+        cartItem = await prisma.cartItem.update({
+          where: {
+            id: existingCartItem.id
+          },
+          data: {
+            quantity: newQuantity
+          },
+          include: {
+            product: {
+              include: {
+                images: {
+                  orderBy: { order: 'asc' },
+                  take: 1
+                }
               }
             }
           }
-        }
+        })
+      } else {
+        // Create new cart item
+        cartItem = await prisma.cartItem.create({
+          data: {
+            userId: session.user.id,
+            productId: productId,
+            quantity: quantity
+          },
+          include: {
+            product: {
+              include: {
+                images: {
+                  orderBy: { order: 'asc' },
+                  take: 1
+                }
+              }
+            }
+          }
+        })
+      }
+      const duration = Date.now() - startTime
+
+      logger.dbQuery(existingCartItem ? 'cartItem.update' : 'cartItem.create', duration)
+      logger.info('Item added to cart', { 
+        userId: session.user.id, 
+        productId, 
+        quantity: cartItem.quantity 
       })
+
+      return ApiResponse.success(cartItem, 'Item added to cart', 201)
+    } catch (error) {
+      logger.error('Error adding to cart:', error)
+      return ApiResponse.error('Failed to add item to cart. Please try again.', 500)
     }
-    const duration = Date.now() - startTime
-
-    logger.dbQuery(existingCartItem ? 'cartItem.update' : 'cartItem.create', duration)
-    logger.info('Item added to cart', { 
-      userId: session.user.id, 
-      productId, 
-      quantity: cartItem.quantity 
-    })
-
-    return ApiResponse.success(cartItem, 'Item added to cart', 201)
   },
 })
 

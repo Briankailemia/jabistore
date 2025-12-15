@@ -100,11 +100,15 @@ export default function CheckoutPage() {
           credentials: 'include'
         })
         if (response.ok) {
-          const addresses = await response.json()
+          const responseData = await response.json()
+          // Extract addresses from API response (which has structure { success: true, data: [...] })
+          const addresses = Array.isArray(responseData) ? responseData : (responseData?.data || [])
           setSavedAddresses(addresses)
           
           // Auto-fill with default address if available
-          const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0]
+          const defaultAddress = Array.isArray(addresses) && addresses.length > 0 
+            ? addresses.find(addr => addr.isDefault) || addresses[0]
+            : null
           if (defaultAddress) {
             setSelectedAddressId(defaultAddress.id)
       setFormData(prev => ({
@@ -148,13 +152,13 @@ export default function CheckoutPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        <div className="text-center bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
-          <h1 className="text-3xl font-bold text-white mb-4">Please Sign In</h1>
-          <p className="text-slate-300 mb-6">You need to be signed in to checkout.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-blue-50 to-white">
+        <div className="text-center bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
+          <h1 className="text-3xl font-black text-gray-900 mb-4">Please Sign In</h1>
+          <p className="text-gray-600 font-medium mb-6">You need to be signed in to checkout.</p>
           <Link
             href="/auth/signin"
-            className="inline-block bg-gradient-to-r from-sky-500 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-sky-600 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg shadow-sky-500/25"
+            className="inline-block bg-blue-900 text-white px-8 py-3 rounded-xl hover:bg-blue-800 transition-all duration-200 font-bold shadow-lg hover:shadow-xl"
           >
             Sign In
           </Link>
@@ -168,13 +172,13 @@ export default function CheckoutPage() {
   
   if (!safeCartItems || safeCartItems.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        <div className="text-center bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
-          <h1 className="text-3xl font-bold text-white mb-4">Your Cart is Empty</h1>
-          <p className="text-slate-300 mb-6">Add some items to your cart before checkout.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-blue-50 to-white">
+        <div className="text-center bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
+          <h1 className="text-3xl font-black text-gray-900 mb-4">Your Cart is Empty</h1>
+          <p className="text-gray-600 font-medium mb-6">Add some items to your cart before checkout.</p>
           <Link
             href="/products"
-            className="inline-block bg-gradient-to-r from-sky-500 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-sky-600 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg shadow-sky-500/25"
+            className="inline-block bg-blue-900 text-white px-8 py-3 rounded-xl hover:bg-blue-800 transition-all duration-200 font-bold shadow-lg hover:shadow-xl"
           >
             Continue Shopping
           </Link>
@@ -338,10 +342,20 @@ export default function CheckoutPage() {
           })
           
           if (addressResponse.ok) {
-            const savedAddress = await addressResponse.json()
-            shippingAddressId = savedAddress.id
+            const addressData = await addressResponse.json()
+            // Extract address from API response (which has structure { success: true, data: {...} })
+            const savedAddress = addressData?.data || addressData
+            shippingAddressId = savedAddress?.id
           } else {
-            throw new Error('Failed to save address')
+            let errorData = {}
+            try {
+              const text = await addressResponse.text()
+              errorData = text ? JSON.parse(text) : {}
+            } catch (parseError) {
+              console.error('Failed to parse error response:', parseError)
+            }
+            const errorMessage = errorData?.error || errorData?.message || `Failed to save address (${addressResponse.status})`
+            throw new Error(errorMessage)
           }
         } catch (error) {
           console.error('Failed to save address:', error)
@@ -370,12 +384,21 @@ export default function CheckoutPage() {
       })
 
       if (!orderResponse.ok) {
-        const errorData = await orderResponse.json()
-        throw new Error(errorData.error || 'Failed to create order')
+        let errorData = {}
+        try {
+          const text = await orderResponse.text()
+          errorData = text ? JSON.parse(text) : {}
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+        }
+        const errorMessage = errorData?.error || errorData?.message || `Failed to create order (${orderResponse.status})`
+        throw new Error(errorMessage)
       }
 
-      const order = await orderResponse.json()
-      if (order.id) {
+      const orderData = await orderResponse.json()
+      // Extract order from API response (which has structure { success: true, data: {...} })
+      const order = orderData?.data || orderData
+      if (order?.id) {
 
         if (formData.paymentMethod === 'mpesa') {
           await processMpesaPayment(order.id)
@@ -476,64 +499,64 @@ export default function CheckoutPage() {
   // Payment waiting/processing screen
   if (paymentStatus === 'waiting' || paymentStatus === 'processing') {
   return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white flex items-center justify-center">
         <div className="max-w-2xl w-full mx-4">
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-8 lg:p-12 text-center shadow-2xl">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 lg:p-12 text-center shadow-xl">
         <div className="mb-8">
               <div className="relative inline-block">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 flex items-center justify-center animate-pulse">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-blue-900 flex items-center justify-center animate-pulse">
                   <svg className="w-12 h-12 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center animate-bounce">
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center animate-bounce">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
               </div>
-              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-black mb-4 text-gray-900">
                 {paymentStatus === 'waiting' ? 'Sending Payment Request...' : 'Waiting for Payment'}
               </h2>
-              <p className="text-slate-300 text-lg mb-2">
+              <p className="text-gray-900 font-bold text-lg mb-2">
                 {paymentStatus === 'waiting' 
                   ? 'Initiating M-Pesa STK Push...'
                   : 'Please check your phone and enter your M-Pesa PIN to complete the payment.'}
               </p>
               {paymentStatus === 'processing' && (
                 <>
-                  <p className="text-slate-400 text-sm mb-6">
+                  <p className="text-gray-600 text-sm mb-6 font-medium">
                     We're waiting for you to complete the payment on your phone.
                   </p>
-                  <div className="flex items-center justify-center gap-2 text-sky-400 mb-6">
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="flex items-center justify-center gap-2 text-blue-900 mb-6">
+                    <div className="w-2 h-2 bg-blue-900 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-blue-900 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-blue-900 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </>
               )}
             </div>
             
-            <div className="bg-slate-800/50 rounded-xl p-6 mb-6 border border-slate-700">
+            <div className="bg-gray-50 rounded-xl p-6 mb-6 border-2 border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-400">Order Total</span>
-                <span className="text-2xl font-bold text-white">{formatKES(finalTotal)}</span>
+                <span className="text-gray-600 font-medium">Order Total</span>
+                <span className="text-2xl font-black text-blue-900">{formatKES(finalTotal)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Phone Number</span>
-                <span className="text-slate-300 font-mono">{formatPhoneDisplay(formData.mpesaPhone)}</span>
+                <span className="text-gray-600 font-medium">Phone Number</span>
+                <span className="text-gray-900 font-black font-mono">{formatPhoneDisplay(formData.mpesaPhone)}</span>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl text-left">
-                  <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl text-left">
+                  <svg className="w-5 h-5 text-blue-900 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <div className="text-sm text-blue-200">
-                    <p className="font-medium mb-1">What to do:</p>
-                    <ol className="list-decimal list-inside space-y-1 text-blue-300/80">
+                  <div className="text-sm text-blue-900">
+                    <p className="font-black mb-1">What to do:</p>
+                    <ol className="list-decimal list-inside space-y-1 text-blue-800 font-medium">
                       <li>Check your phone for the M-Pesa prompt</li>
                       <li>Enter your M-Pesa PIN when prompted</li>
                       <li>Wait for confirmation - we'll update automatically</li>
@@ -549,7 +572,7 @@ export default function CheckoutPage() {
                   setCheckoutRequestId(null)
                   setIsLoading(false)
                 }}
-                className="w-full px-6 py-3 bg-slate-800/50 text-slate-300 rounded-xl hover:bg-slate-700/50 transition-all border border-slate-600"
+                className="w-full px-6 py-3 bg-gray-100 text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all border-2 border-gray-300"
               >
                 Cancel Payment
               </button>
@@ -561,14 +584,20 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Header */}
-        <div className="mb-8 lg:mb-12">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-            Checkout
-          </h1>
-          <p className="text-slate-400">Complete your purchase in just a few steps</p>
+        <div className="relative overflow-hidden rounded-[36px] border-2 border-gray-200 bg-gradient-to-br from-blue-50 via-white to-blue-100 px-6 py-12 sm:px-10 shadow-lg mb-8 lg:mb-12">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-24 left-10 h-72 w-72 rounded-full bg-blue-300/30 blur-3xl" />
+            <div className="absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-indigo-300/25 blur-3xl" />
+          </div>
+          <div className="relative z-10">
+            <h1 className="text-4xl md:text-5xl font-black mb-2 text-gray-900">
+              Checkout
+            </h1>
+            <p className="text-gray-600 text-lg">Complete your purchase in just a few steps</p>
+          </div>
         </div>
 
         {/* Progress Steps */}
@@ -580,14 +609,14 @@ export default function CheckoutPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Step 1: Shipping */}
               {step === 1 && (
-                <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-6 lg:p-8 shadow-2xl">
+                <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                       </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Shipping Information</h2>
+                    <h2 className="text-2xl font-black text-gray-900">Shipping Information</h2>
                   </div>
 
                   {/* Saved Addresses */}
@@ -597,7 +626,7 @@ export default function CheckoutPage() {
                     </div>
                   ) : savedAddresses.length > 0 && (
                     <div className="mb-6">
-                      <label className="block text-sm font-medium text-slate-300 mb-3">
+                      <label className="block text-sm font-bold text-gray-900 mb-3">
                         Use Saved Address
                       </label>
                       <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -606,8 +635,8 @@ export default function CheckoutPage() {
                             key={address.id}
                             className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                               selectedAddressId === address.id
-                                ? 'bg-sky-500/20 border-sky-500'
-                                : 'bg-slate-800/30 border-slate-600 hover:border-slate-500'
+                                ? 'bg-blue-50 border-blue-900'
+                                : 'bg-gray-50 border-gray-200 hover:border-blue-300'
                             }`}
                           >
                             <input
@@ -628,24 +657,24 @@ export default function CheckoutPage() {
                                   phone: address.phone || ''
                                 }))
                               }}
-                              className="mt-1 h-4 w-4 text-sky-500 focus:ring-sky-500 border-slate-600"
+                              className="mt-1 h-4 w-4 text-blue-900 focus:ring-blue-900 border-gray-300"
                             />
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-white">
+                                <span className="font-bold text-gray-900">
                                   {address.firstName} {address.lastName}
                                 </span>
                                 {address.isDefault && (
-                                  <span className="text-xs bg-sky-500/30 text-sky-300 px-2 py-0.5 rounded-full">
+                                  <span className="text-xs bg-blue-900 text-white px-2 py-0.5 rounded-full font-bold">
                                     Default
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-slate-400">
+                              <p className="text-sm text-gray-600">
                                 {address.address1}, {address.city}, {address.state} {address.postalCode}
                               </p>
                               {address.phone && (
-                                <p className="text-xs text-slate-500 mt-1">{address.phone}</p>
+                                <p className="text-xs text-gray-500 mt-1">{address.phone}</p>
                               )}
                             </div>
                           </label>
@@ -667,7 +696,7 @@ export default function CheckoutPage() {
                           }))
                         }}
                         aria-label="Use a new address instead of saved address"
-                        className="mt-3 text-sm text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1"
+                        className="mt-3 text-sm text-blue-900 hover:text-blue-700 transition-colors flex items-center gap-1 font-bold"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -679,8 +708,8 @@ export default function CheckoutPage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label htmlFor="checkout-firstName" className="block text-sm font-medium text-slate-300 mb-2">
-                        First Name <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-firstName" className="block text-sm font-bold text-gray-900 mb-2">
+                        First Name <span className="text-red-600" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-firstName"
@@ -692,15 +721,15 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.firstName}
                         aria-describedby={errors.firstName ? 'checkout-firstName-error' : undefined}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.firstName ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.firstName ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.firstName && <p id="checkout-firstName-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.firstName}</p>}
+                      {errors.firstName && <p id="checkout-firstName-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.firstName}</p>}
                     </div>
                     <div>
-                      <label htmlFor="checkout-lastName" className="block text-sm font-medium text-slate-300 mb-2">
-                        Last Name <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-lastName" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        Last Name <span className="text-red-600 font-medium" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-lastName"
@@ -712,18 +741,18 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.lastName}
                         aria-describedby={errors.lastName ? 'checkout-lastName-error' : undefined}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.lastName ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.lastName ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.lastName && <p id="checkout-lastName-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.lastName}</p>}
+                      {errors.lastName && <p id="checkout-lastName-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.lastName}</p>}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label htmlFor="checkout-email" className="block text-sm font-medium text-slate-300 mb-2">
-                        Email <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-email" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        Email <span className="text-red-600 font-medium" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-email"
@@ -735,15 +764,15 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.email}
                         aria-describedby={errors.email ? 'checkout-email-error' : undefined}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.email ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.email ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.email && <p id="checkout-email-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.email}</p>}
+                      {errors.email && <p id="checkout-email-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.email}</p>}
                     </div>
                     <div>
-                      <label htmlFor="checkout-phone" className="block text-sm font-medium text-slate-300 mb-2">
-                        Phone <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-phone" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        Phone <span className="text-red-600 font-medium" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-phone"
@@ -756,18 +785,18 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.phone}
                         aria-describedby={errors.phone ? 'checkout-phone-error checkout-phone-help' : 'checkout-phone-help'}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.phone ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.phone ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.phone && <p id="checkout-phone-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.phone}</p>}
-                      <p id="checkout-phone-help" className="mt-1 text-xs text-slate-500">Accepts: 254XXXXXXXXX, 07XXXXXXXX, or +254XXXXXXXXX</p>
+                      {errors.phone && <p id="checkout-phone-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.phone}</p>}
+                      <p id="checkout-phone-help" className="mt-1 text-xs text-gray-500">Accepts: 254XXXXXXXXX, 07XXXXXXXX, or +254XXXXXXXXX</p>
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <label htmlFor="checkout-address" className="block text-sm font-medium text-slate-300 mb-2">
-                      Address <span className="text-rose-400" aria-label="required">*</span>
+                    <label htmlFor="checkout-address" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                      Address <span className="text-red-600 font-medium" aria-label="required">*</span>
                     </label>
                     <input
                       id="checkout-address"
@@ -779,17 +808,17 @@ export default function CheckoutPage() {
                       aria-required="true"
                       aria-invalid={!!errors.address}
                       aria-describedby={errors.address ? 'checkout-address-error' : undefined}
-                      className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                        errors.address ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                      className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                        errors.address ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                       }`}
                     />
-                    {errors.address && <p id="checkout-address-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.address}</p>}
+                    {errors.address && <p id="checkout-address-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.address}</p>}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div>
-                      <label htmlFor="checkout-city" className="block text-sm font-medium text-slate-300 mb-2">
-                        City <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-city" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        City <span className="text-red-600 font-medium" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-city"
@@ -801,15 +830,15 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.city}
                         aria-describedby={errors.city ? 'checkout-city-error' : undefined}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.city ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.city ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.city && <p id="checkout-city-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.city}</p>}
+                      {errors.city && <p id="checkout-city-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.city}</p>}
                     </div>
                     <div>
-                      <label htmlFor="checkout-state" className="block text-sm font-medium text-slate-300 mb-2">
-                        State/County <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-state" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        State/County <span className="text-red-600 font-medium" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-state"
@@ -821,15 +850,15 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.state}
                         aria-describedby={errors.state ? 'checkout-state-error' : undefined}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.state ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.state ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.state && <p id="checkout-state-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.state}</p>}
+                      {errors.state && <p id="checkout-state-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.state}</p>}
                     </div>
                     <div>
-                      <label htmlFor="checkout-postalCode" className="block text-sm font-medium text-slate-300 mb-2">
-                        ZIP Code <span className="text-rose-400" aria-label="required">*</span>
+                      <label htmlFor="checkout-postalCode" className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        ZIP Code <span className="text-red-600 font-medium" aria-label="required">*</span>
                       </label>
                       <input
                         id="checkout-postalCode"
@@ -841,19 +870,19 @@ export default function CheckoutPage() {
                         aria-required="true"
                         aria-invalid={!!errors.postalCode}
                         aria-describedby={errors.postalCode ? 'checkout-postalCode-error' : undefined}
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.postalCode ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.postalCode ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.postalCode && <p id="checkout-postalCode-error" className="mt-1 text-sm text-rose-400" role="alert">{errors.postalCode}</p>}
+                      {errors.postalCode && <p id="checkout-postalCode-error" className="mt-1 text-sm text-red-600 font-medium" role="alert">{errors.postalCode}</p>}
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-4 border-t border-white/10">
+                  <div className="flex justify-end pt-4 border-t-2 border-gray-200">
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-sky-600 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg shadow-sky-500/25 flex items-center gap-2"
+                      className="bg-blue-900 text-white px-8 py-3 rounded-xl hover:bg-blue-800 transition-all duration-200 font-bold shadow-lg hover:shadow-xl flex items-center gap-2"
                     >
                       Continue to Payment
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -866,21 +895,21 @@ export default function CheckoutPage() {
 
               {/* Step 2: Payment */}
               {step === 2 && (
-                <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-6 lg:p-8 shadow-2xl">
+                <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                       </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Payment Method</h2>
+                    <h2 className="text-2xl font-black text-gray-900">Payment Method</h2>
                   </div>
                   
                   <div className="space-y-4 mb-6">
                     <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       formData.paymentMethod === 'mpesa'
-                        ? 'bg-sky-500/20 border-sky-500'
-                        : 'bg-slate-800/50 border-slate-600 hover:border-slate-500'
+                        ? 'bg-blue-50 border-blue-900'
+                        : 'bg-gray-50 border-gray-200 hover:border-blue-300'
                     }`}>
                       <input
                         type="radio"
@@ -888,14 +917,14 @@ export default function CheckoutPage() {
                         value="mpesa"
                         checked={formData.paymentMethod === 'mpesa'}
                         onChange={handleInputChange}
-                        className="h-5 w-5 text-sky-500 focus:ring-sky-500 border-slate-600"
+                        className="h-5 w-5 text-blue-900 focus:ring-blue-900 border-gray-300"
                       />
                       <div className="ml-4 flex-1">
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">📱</span>
                           <div>
-                            <span className="block font-semibold text-white">M-Pesa</span>
-                            <span className="text-sm text-slate-400">Pay with your mobile phone</span>
+                            <span className="block font-black text-gray-900">M-Pesa</span>
+                            <span className="text-sm text-gray-600 font-medium">Pay with your mobile phone</span>
                     </div>
                         </div>
                       </div>
@@ -903,8 +932,8 @@ export default function CheckoutPage() {
                     
                     <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       formData.paymentMethod === 'card'
-                        ? 'bg-sky-500/20 border-sky-500'
-                        : 'bg-slate-800/50 border-slate-600 hover:border-slate-500'
+                        ? 'bg-blue-50 border-blue-900'
+                        : 'bg-gray-50 border-gray-200 hover:border-blue-300'
                     }`}>
                       <input
                         type="radio"
@@ -912,14 +941,14 @@ export default function CheckoutPage() {
                         value="card"
                         checked={formData.paymentMethod === 'card'}
                         onChange={handleInputChange}
-                        className="h-5 w-5 text-sky-500 focus:ring-sky-500 border-slate-600"
+                        className="h-5 w-5 text-blue-900 focus:ring-blue-900 border-gray-300"
                       />
                       <div className="ml-4 flex-1">
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">💳</span>
                           <div>
-                            <span className="block font-semibold text-white">Credit/Debit Card</span>
-                            <span className="text-sm text-slate-400">Visa, Mastercard, or Amex</span>
+                            <span className="block font-black text-gray-900">Credit/Debit Card</span>
+                            <span className="text-sm text-gray-600 font-medium">Visa, Mastercard, or Amex</span>
                     </div>
                         </div>
                       </div>
@@ -927,9 +956,9 @@ export default function CheckoutPage() {
                   </div>
 
                   {formData.paymentMethod === 'mpesa' && (
-                    <div className="mb-6 p-4 bg-slate-800/30 rounded-xl border border-slate-700">
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        M-Pesa Phone Number <span className="text-rose-400">*</span>
+                    <div className="mb-6 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                      <label className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                        M-Pesa Phone Number <span className="text-red-600 font-medium">*</span>
                       </label>
                       <input
                         type="tel"
@@ -938,16 +967,16 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         onBlur={handlePhoneBlur}
                         placeholder="254712345678 or 0712345678"
-                        className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          errors.mpesaPhone ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                          errors.mpesaPhone ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                         }`}
                       />
-                      {errors.mpesaPhone && <p className="mt-1 text-sm text-rose-400">{errors.mpesaPhone}</p>}
-                      <p className="mt-2 text-xs text-slate-400">
+                      {errors.mpesaPhone && <p className="mt-1 text-sm text-red-600 font-medium">{errors.mpesaPhone}</p>}
+                      <p className="mt-2 text-xs text-gray-500">
                         Enter your M-Pesa registered phone number. Accepts: 254XXXXXXXXX, 07XXXXXXXX, or +254XXXXXXXXX
                       </p>
                       {formData.mpesaPhone && validateMpesaPhone(formData.mpesaPhone) && (
-                        <p className="mt-2 text-xs text-emerald-400 flex items-center gap-1">
+                        <p className="mt-2 text-xs text-emerald-700 flex items-center gap-1 font-bold">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
@@ -958,10 +987,10 @@ export default function CheckoutPage() {
                   )}
 
                   {formData.paymentMethod === 'card' && (
-                    <div className="space-y-4 mb-6 p-4 bg-slate-800/30 rounded-xl border border-slate-700">
+                    <div className="space-y-4 mb-6 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">
-                          Card Number <span className="text-rose-400">*</span>
+                        <label className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                          Card Number <span className="text-red-600 font-medium">*</span>
                         </label>
                         <input
                           type="text"
@@ -970,16 +999,16 @@ export default function CheckoutPage() {
                           onChange={handleInputChange}
                           placeholder="1234 5678 9012 3456"
                           maxLength="19"
-                          className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                            errors.cardNumber ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                          className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                            errors.cardNumber ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                           }`}
                         />
-                        {errors.cardNumber && <p className="mt-1 text-sm text-rose-400">{errors.cardNumber}</p>}
+                        {errors.cardNumber && <p className="mt-1 text-sm text-red-600 font-medium">{errors.cardNumber}</p>}
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-slate-300 mb-2">
-                            Expiry Date <span className="text-rose-400">*</span>
+                          <label className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                            Expiry Date <span className="text-red-600 font-medium">*</span>
                           </label>
                           <input
                             type="text"
@@ -988,15 +1017,15 @@ export default function CheckoutPage() {
                             onChange={handleInputChange}
                             placeholder="MM/YY"
                             maxLength="5"
-                            className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                              errors.expiryDate ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                            className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                              errors.expiryDate ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                             }`}
                           />
-                          {errors.expiryDate && <p className="mt-1 text-sm text-rose-400">{errors.expiryDate}</p>}
+                          {errors.expiryDate && <p className="mt-1 text-sm text-red-600 font-medium">{errors.expiryDate}</p>}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-slate-300 mb-2">
-                            CVV <span className="text-rose-400">*</span>
+                          <label className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                            CVV <span className="text-red-600 font-medium">*</span>
                           </label>
                           <input
                             type="text"
@@ -1005,16 +1034,16 @@ export default function CheckoutPage() {
                             onChange={handleInputChange}
                             placeholder="123"
                             maxLength="4"
-                            className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                              errors.cvv ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                            className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                              errors.cvv ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                             }`}
                           />
-                          {errors.cvv && <p className="mt-1 text-sm text-rose-400">{errors.cvv}</p>}
+                          {errors.cvv && <p className="mt-1 text-sm text-red-600 font-medium">{errors.cvv}</p>}
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">
-                          Cardholder Name <span className="text-rose-400">*</span>
+                        <label className="block text-sm font-medium text-gray-900 font-bold mb-2">
+                          Cardholder Name <span className="text-red-600 font-medium">*</span>
                         </label>
                         <input
                           type="text"
@@ -1022,33 +1051,33 @@ export default function CheckoutPage() {
                           value={formData.cardName}
                           onChange={handleInputChange}
                           placeholder="John Doe"
-                          className={`w-full px-4 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                            errors.cardName ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-600 focus:ring-sky-500 focus:border-sky-500'
+                          className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                            errors.cardName ? 'border-rose-500 focus:ring-rose-500' : 'border-gray-200 focus:ring-blue-900 focus:border-blue-900'
                           }`}
                         />
-                        {errors.cardName && <p className="mt-1 text-sm text-rose-400">{errors.cardName}</p>}
+                        {errors.cardName && <p className="mt-1 text-sm text-red-600 font-medium">{errors.cardName}</p>}
                       </div>
-                      <div className="flex items-center gap-2 pt-2 text-xs text-slate-400">
+                      <div className="flex items-center gap-2 pt-2 text-xs text-gray-600">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        <span>Your payment information is secure and encrypted</span>
+                        <span className="font-medium">Your payment information is secure and encrypted</span>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex justify-between pt-4 border-t border-white/10">
+                  <div className="flex justify-between pt-4 border-t-2 border-gray-200">
                     <button
                       type="button"
                       onClick={handleBack}
-                      className="px-6 py-3 bg-slate-800/50 text-slate-300 rounded-xl hover:bg-slate-700/50 transition-all duration-200 border border-slate-600"
+                      className="px-6 py-3 bg-gray-100 text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all duration-200 border-2 border-gray-300"
                     >
                       Back
                     </button>
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-sky-600 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg shadow-sky-500/25 flex items-center gap-2"
+                      className="bg-blue-900 text-white px-8 py-3 rounded-xl hover:bg-blue-800 transition-all duration-200 font-bold shadow-lg hover:shadow-xl flex items-center gap-2"
                     >
                       Review Order
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1061,40 +1090,40 @@ export default function CheckoutPage() {
 
               {/* Step 3: Review */}
               {step === 3 && (
-                <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-6 lg:p-8 shadow-2xl">
+                <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-white">Order Review</h2>
+                    <h2 className="text-2xl font-black text-gray-900">Order Review</h2>
                   </div>
                   
                   <div className="space-y-6 mb-6">
-                    <div className="p-4 bg-slate-800/30 rounded-xl border border-slate-700">
-                      <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                      <h3 className="font-black text-gray-900 mb-2 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         Shipping Address
                       </h3>
-                      <p className="text-slate-300 leading-relaxed">
+                      <p className="text-gray-900 font-bold leading-relaxed">
                         {formData.firstName} {formData.lastName}<br />
                         {formData.address}<br />
                         {formData.city}, {formData.state} {formData.postalCode}<br />
                         {formData.country}
                       </p>
                     </div>
-                    <div className="p-4 bg-slate-800/30 rounded-xl border border-slate-700">
-                      <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                      <h3 className="font-black text-gray-900 mb-2 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                         Payment Method
                       </h3>
-                      <p className="text-slate-300">
+                      <p className="text-gray-900 font-bold">
                         {formData.paymentMethod === 'mpesa' ? 'M-Pesa' : 'Credit/Debit Card'}
                         {formData.paymentMethod === 'mpesa' && ` (${formData.mpesaPhone})`}
                       </p>
@@ -1102,23 +1131,23 @@ export default function CheckoutPage() {
                   </div>
 
                   {errors.submit && (
-                    <div className="mb-6 p-4 bg-rose-500/20 border border-rose-500/50 rounded-xl text-rose-300">
+                    <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-900 font-medium">
                       {errors.submit}
                     </div>
                   )}
 
-                  <div className="flex justify-between pt-4 border-t border-white/10">
+                  <div className="flex justify-between pt-4 border-t-2 border-gray-200">
                     <button
                       type="button"
                       onClick={handleBack}
-                      className="px-6 py-3 bg-slate-800/50 text-slate-300 rounded-xl hover:bg-slate-700/50 transition-all duration-200 border border-slate-600"
+                      className="px-6 py-3 bg-gray-100 text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all duration-200 border-2 border-gray-300"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-8 py-3 rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg shadow-emerald-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-emerald-600 text-white px-8 py-3 rounded-xl hover:bg-emerald-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
                         <>

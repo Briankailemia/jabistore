@@ -73,6 +73,7 @@ model User {
   stockAlerts StockAlert[]
   reservations Reservation[]
   createdReservations Reservation[] @relation("ReservationCreatedBy")
+  auditLogs   AuditLog[]
 
   @@map("users")
   @@index([email])
@@ -519,4 +520,36 @@ model Reservation {
 
   @@index([reservedFor])
   @@index([status])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  entityType  String?
+  entityId    String?
+  ip          String?
+  userAgent   String?
+  details     Json?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+// Store settings
+model Settings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  updatedAt   DateTime @default(now()) @updatedAt
+  updatedBy   String?
+
+  @@map("settings")
+  @@index([key])
 }

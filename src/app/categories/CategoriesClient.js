@@ -4,11 +4,15 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 
 import LoadingSpinner from '@/components/LoadingSpinner'
+import { OptimizedImage } from '@/components/OptimizedImage'
+import Card from '@/components/ui/Card'
+import { useDebounce } from '@/lib/useDebounce'
 
 const GRADIENT_FALLBACK = 'from-slate-800 via-slate-900 to-slate-950'
 
 export default function CategoriesClient({ initialCategories }) {
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false)
 
   const categories = useMemo(() => initialCategories || [], [initialCategories])
@@ -20,7 +24,7 @@ export default function CategoriesClient({ initialCategories }) {
   )
 
   const filteredCategories = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase()
+    const normalizedSearch = debouncedSearchTerm.trim().toLowerCase()
     return categories.filter((category) => {
       const matchesFeatured = !showFeaturedOnly || category.featured
       const matchesSearch =
@@ -29,7 +33,7 @@ export default function CategoriesClient({ initialCategories }) {
         (category.description || '').toLowerCase().includes(normalizedSearch)
       return matchesFeatured && matchesSearch
     })
-  }, [categories, searchTerm, showFeaturedOnly])
+  }, [categories, debouncedSearchTerm, showFeaturedOnly])
 
   const topCategory = useMemo(() => {
     return categories.reduce((leader, category) => {
@@ -41,74 +45,77 @@ export default function CategoriesClient({ initialCategories }) {
     }, null)
   }, [categories])
 
-  const heroAccent = totalProducts > 0 ? 'to-blue-600 from-slate-900' : 'to-slate-900 from-slate-900'
-
   return (
     <div className="min-h-screen bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Hero */}
-        <section className={`bg-gradient-to-r ${heroAccent} border border-slate-800 rounded-3xl p-10 mb-12 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30`}>
+        <section className="relative bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 rounded-3xl p-10 md:p-12 mb-12 text-white overflow-hidden">
+          {/* Grid Pattern Background */}
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+          
+          {/* Glowing Orbs */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
+          
           <div className="relative z-10 max-w-3xl space-y-6">
-            <p className="text-sm uppercase tracking-[0.3em] text-slate-200/80">Product Architecture</p>
-            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">Shop by expertly curated categories</h1>
-            <p className="text-lg text-slate-200">
+            <p className="text-sm uppercase tracking-[0.3em] text-blue-200">Product Architecture</p>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+              Shop by expertly curated categories
+            </h1>
+            <p className="text-xl text-blue-100 leading-relaxed">
               Browse laptops, phones, creator gear, and smart home tech organized by real inventory
               data instead of placeholder grids.
             </p>
-            <div className="flex flex-wrap gap-4 text-sm text-slate-200">
-              <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur">{categories.length} categories</div>
-              <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur">{totalProducts} in-stock SKUs</div>
-              <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur">{featuredCategories.length} spotlighted</div>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="bg-white/10 backdrop-blur-sm px-5 py-3 rounded-full border border-white/20">
+                <span className="font-bold text-white">{categories.length}</span> <span className="text-blue-200">categories</span>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm px-5 py-3 rounded-full border border-white/20">
+                <span className="font-bold text-white">{totalProducts}</span> <span className="text-blue-200">in-stock SKUs</span>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm px-5 py-3 rounded-full border border-white/20">
+                <span className="font-bold text-white">{featuredCategories.length}</span> <span className="text-blue-200">spotlighted</span>
+              </div>
             </div>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-900/20 to-slate-900/60" />
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 bg-blue-500/10 blur-3xl rounded-full" />
         </section>
 
         {/* Featured categories */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-white">Spotlight segments</h2>
-            <p className="text-slate-400 text-sm">Anchored by high-velocity demand</p>
-          </div>
-          {featuredCategories.length === 0 ? (
-            <p className="text-slate-500">No featured categories yet.</p>
-          ) : (
+        {featuredCategories.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-3xl font-black text-gray-900 mb-2">Spotlight Segments</h2>
+            <p className="text-gray-600 mb-8">Anchored by high-velocity demand</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredCategories.map((category) => (
-                <article
+                <Link
                   key={category.id}
-                  className={`rounded-2xl p-6 text-white border border-white/10 bg-gradient-to-br ${category.accentColor || GRADIENT_FALLBACK} shadow-lg shadow-blue-900/20`}
+                  href={`/products?category=${category.slug}`}
+                  className="group block focus-visible:outline-none cursor-pointer"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="text-xs uppercase tracking-[0.2em] text-white/70">Featured</div>
-                    <span className="bg-white/20 px-3 py-1 rounded-full text-xs">{category._count?.products ?? 0} SKUs</span>
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
-                  <p className="text-sm text-white/80 line-clamp-3">{category.description}</p>
-                  <div className="mt-6">
-                    <Link
-                      href={`/products?category=${category.slug}`}
-                      className="inline-flex items-center text-sm font-medium text-white/90 hover:text-white"
-                    >
-                      View collection
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  </div>
-                </article>
+                  <Card className="rounded-2xl p-6 bg-white border-2 border-gray-200 shadow-lg group-hover:shadow-xl group-hover:-translate-y-1 group-hover:border-blue-900 transition-all duration-200 h-full">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="text-xs uppercase tracking-[0.2em] text-blue-600 font-bold">Featured</div>
+                      <span className="bg-blue-50 text-blue-900 border-2 border-blue-200 px-3 py-1 rounded-full text-xs font-bold">{category._count?.products ?? 0} SKUs</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-blue-900 transition-colors">{category.name}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-3">{category.description}</p>
+                  </Card>
+                </Link>
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* Filters */}
-        <section className="glass-panel border border-white/10 rounded-2xl p-6 mb-10">
+        <Card className="p-6 mb-10 bg-white border-gray-200">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex-1">
               <div className="relative">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -116,72 +123,78 @@ export default function CategoriesClient({ initialCategories }) {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search category names or descriptions"
-                  className="w-full pl-10 pr-4 py-3 bg-[color:var(--surface-tertiary)] border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-sky/50"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                 />
               </div>
             </div>
-            <label className="flex items-center space-x-2 text-sm text-slate-300">
+            <label className="flex items-center space-x-3 text-sm text-gray-700 font-semibold cursor-pointer">
               <input
                 type="checkbox"
                 checked={showFeaturedOnly}
                 onChange={(event) => setShowFeaturedOnly(event.target.checked)}
-                className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-sky-500 focus:ring-sky-500"
+                className="w-5 h-5 rounded border-2 border-gray-300 bg-white text-blue-900 focus:ring-blue-900 focus:ring-2 cursor-pointer"
               />
               <span>Featured only</span>
             </label>
-            <p className="text-slate-400 text-sm">{filteredCategories.length} segment{filteredCategories.length !== 1 ? 's' : ''} visible</p>
+            <p className="text-gray-600 text-sm font-semibold">{filteredCategories.length} segment{filteredCategories.length !== 1 ? 's' : ''} visible</p>
           </div>
-        </section>
+        </Card>
 
         {/* Category grid */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-white">All categories</h2>
+            <h2 className="text-3xl font-black text-gray-900">All Categories</h2>
           </div>
           {filteredCategories.length === 0 ? (
-            <div className="border border-dashed border-slate-800 bg-slate-900/50 rounded-2xl p-12 text-center text-slate-400">
-              Nothing matches your filters yet. Clear the search or toggle featured mode.
-            </div>
+            <Card className="text-center py-16 bg-white border-gray-200">
+              <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-gray-900 font-bold text-lg mb-2">Nothing matches your filters yet</p>
+              <p className="text-gray-600 text-sm">Clear the search or toggle featured mode.</p>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCategories.map((category) => (
-                <article
+                <Link
                   key={category.id}
-                  className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-sky-500/40 transition"
+                  href={`/products?category=${category.slug}`}
+                  className="group block focus-visible:outline-none cursor-pointer"
                 >
-                  <div className="relative h-48 bg-slate-800 flex items-center justify-center">
-                    {category.image ? (
-                      <img src={category.image} alt={category.name} className="object-cover w-full h-full" />
-                    ) : (
-                      <span className="text-slate-500">Category visual</span>
-                    )}
-                    <span className="absolute bottom-4 left-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
-                      {category._count?.products ?? 0} products
-                    </span>
-                    {category.featured && (
-                      <span className="absolute top-4 right-4 bg-sky-500/20 text-sky-200 text-xs px-3 py-1 rounded-full border border-sky-500/40">
-                        Featured
+                  <Card className="bg-white border-gray-200 rounded-2xl overflow-hidden group-hover:border-blue-900 group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-200 h-full">
+                    <div className="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                      {category.image ? (
+                        <OptimizedImage
+                          src={category.image}
+                          alt={category.name}
+                          width={400}
+                          height={200}
+                          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
+                          <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                        </div>
+                      )}
+                      <span className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-full font-bold">
+                        {category._count?.products ?? 0} products
                       </span>
-                    )}
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-white mb-2">{category.name}</h3>
-                      <p className="text-sm text-slate-300 line-clamp-3">{category.description}</p>
+                      {category.featured && (
+                        <span className="absolute top-4 right-4 bg-blue-900 text-white text-xs px-4 py-2 rounded-full border-2 border-white font-bold shadow-lg">
+                          Featured
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Link
-                        href={`/products?category=${category.slug}`}
-                        className="text-sm text-sky-300 hover:text-sky-200 font-medium"
-                      >
-                        Explore products
-                      </Link>
-                      <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                    <div className="p-6 space-y-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-900 transition-colors">{category.name}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-3">{category.description}</p>
+                      </div>
                     </div>
-                  </div>
-                </article>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}
@@ -189,31 +202,31 @@ export default function CategoriesClient({ initialCategories }) {
 
         {/* Insights */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Momentum</p>
-            <h3 className="text-white text-lg font-semibold mb-1">Trending now</h3>
-            <p className="text-slate-300 text-sm">
+          <Card className="bg-white border-gray-200 rounded-2xl p-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-2 font-bold">Momentum</p>
+            <h3 className="text-gray-900 text-lg font-bold mb-1">Trending now</h3>
+            <p className="text-gray-600 text-sm">
               {topCategory
                 ? `${topCategory.name} leads with ${topCategory._count?.products ?? 0} active SKUs.`
                 : 'Catalog is warming up.'}
             </p>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Availability</p>
-            <h3 className="text-white text-lg font-semibold mb-1">Inventory health</h3>
-            <p className="text-slate-300 text-sm">{totalProducts} devices ready to ship with live stock data.</p>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Updates</p>
-            <h3 className="text-white text-lg font-semibold mb-1">Fresh arrivals</h3>
-            <p className="text-slate-300 text-sm">We seed new laptops, phones, and creator gear every sprint.</p>
-          </div>
+          </Card>
+          <Card className="bg-white border-gray-200 rounded-2xl p-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-2 font-bold">Availability</p>
+            <h3 className="text-gray-900 text-lg font-bold mb-1">Inventory health</h3>
+            <p className="text-gray-600 text-sm">{totalProducts} devices ready to ship with live stock data.</p>
+          </Card>
+          <Card className="bg-white border-gray-200 rounded-2xl p-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-2 font-bold">Updates</p>
+            <h3 className="text-gray-900 text-lg font-bold mb-1">Fresh arrivals</h3>
+            <p className="text-gray-600 text-sm">We seed new laptops, phones, and creator gear every sprint.</p>
+          </Card>
         </section>
 
         {/* Newsletter */}
-        <section className="bg-gradient-to-r from-slate-900 to-blue-900 border border-slate-800 rounded-3xl p-10 text-center">
-          <h3 className="text-2xl font-semibold text-white mb-3">Stay in sync with new drops</h3>
-          <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
+        <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-200 rounded-3xl p-10 text-center">
+          <h3 className="text-3xl font-black text-gray-900 mb-3">Stay in sync with new drops</h3>
+          <p className="text-gray-700 mb-8 max-w-2xl mx-auto text-lg leading-relaxed">
             Get a curated digest when we add new premium hardware categories, bundles, or launch-week perks.
           </p>
           <form className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
@@ -221,16 +234,16 @@ export default function CategoriesClient({ initialCategories }) {
               type="email"
               required
               placeholder="you@studio.com"
-              className="flex-1 px-4 py-3 rounded-2xl bg-[color:var(--surface-tertiary)] border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-sky/40"
+              className="flex-1 px-5 py-4 rounded-xl bg-white border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-500 text-white font-semibold hover:opacity-90 transition"
+              className="px-8 py-4 rounded-xl bg-blue-900 text-white font-bold hover:bg-blue-800 transition-colors shadow-lg hover:shadow-xl"
             >
               Notify me
             </button>
           </form>
-        </section>
+        </Card>
       </div>
     </div>
   )

@@ -14,22 +14,22 @@ export default function SectionHeader({
   const alignClass = align === 'center' ? 'text-center max-w-3xl mx-auto' : ''
 
   return (
-    <div className={cn('space-y-3 relative', alignClass, className)}>
+    <div className={cn('space-y-4 relative', alignClass, className)}>
       <div className="absolute inset-x-0 -top-4 hidden sm:block">
-        <div className="h-px bg-gradient-to-r from-transparent via-brand-sky/40 to-transparent" />
+        <div className="h-px bg-gradient-to-r from-transparent via-blue-600/40 to-transparent" />
       </div>
       {eyebrow && (
-        <Badge variant={eyebrowVariant} className={cn('tracking-[0.3em]', align === 'center' && 'mx-auto')}>
+        <Badge variant={eyebrowVariant} className={cn('tracking-[0.3em] text-xs font-bold', align === 'center' && 'mx-auto')}>
           {eyebrow}
         </Badge>
       )}
       {title && (
-        <h2 className={cn('text-3xl md:text-4xl font-semibold text-white leading-tight', align === 'center' && 'mx-auto')}>
+        <h2 className={cn('text-3xl md:text-5xl font-black text-gray-900 leading-tight', align === 'center' && 'mx-auto')}>
           {title}
         </h2>
       )}
       {description && (
-        <p className="text-slate-300 text-base md:text-lg leading-relaxed">
+        <p className="text-gray-600 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
           {description}
         </p>
       )}

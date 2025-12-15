@@ -37,28 +37,28 @@ export default {
           950: "#0b1120",
         },
         brand: {
-          sky: "#38bdf8",
-          indigo: "#6366f1",
-          azure: "#60a5fa",
-          blue: "#0f172a",
-          slate: "#94a3b8",
+          sky: "#0d6efd",
+          indigo: "#6610f2",
+          azure: "#0d6efd",
+          blue: "#0d6efd",
+          slate: "#6c757d",
         },
         surface: {
-          base: "rgba(10, 16, 32, 0.95)",
-          subtle: "rgba(16, 24, 45, 0.88)",
-          elevated: "rgba(26, 36, 63, 0.9)",
-          highlight: "rgba(148, 197, 255, 0.14)",
+          base: "rgba(255, 255, 255, 0.98)",
+          subtle: "rgba(248, 249, 250, 0.95)",
+          elevated: "rgba(255, 255, 255, 1)",
+          highlight: "rgba(13, 110, 253, 0.1)",
         },
         stroke: {
-          subtle: "rgba(148, 163, 184, 0.22)",
-          strong: "rgba(148, 163, 184, 0.38)",
-          glow: "rgba(99, 102, 241, 0.45)",
+          subtle: "rgba(0, 0, 0, 0.1)",
+          strong: "rgba(0, 0, 0, 0.2)",
+          glow: "rgba(13, 110, 253, 0.3)",
         },
         indigo: {
           950: "#050618",
         },
-        "card-border": "rgba(148, 163, 184, 0.15)",
-        "card-surface": "rgba(15, 23, 42, 0.8)",
+        "card-border": "rgba(0, 0, 0, 0.1)",
+        "card-surface": "rgba(255, 255, 255, 0.95)",
       },
       borderRadius: {
         xl: "1.25rem",
@@ -67,11 +67,11 @@ export default {
         "4xl": "2.5rem",
       },
       boxShadow: {
-        glow: "0 20px 80px rgba(15, 23, 42, 0.45)",
-        focus: "0 0 0 3px rgba(56, 189, 248, 0.35)",
+        glow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        focus: "0 0 0 3px rgba(13, 110, 253, 0.25)",
       },
       dropShadow: {
-        neon: "0 10px 35px rgba(56, 189, 248, 0.25)",
+        neon: "0 4px 8px rgba(13, 110, 253, 0.2)",
       },
       backgroundImage: {
         "radial-night":

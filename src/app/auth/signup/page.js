@@ -141,48 +141,53 @@ export default function SignUp() {
 
   if (isCheckingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[color:var(--color-base)]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-blue-50 to-white">
         <div className="text-center space-y-4">
-          <div className="w-10 h-10 border-2 border-sky-400/50 border-t-sky-400 rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-400 text-sm">Checking session...</p>
+          <div className="w-10 h-10 border-2 border-blue-200 border-t-blue-900 rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600 text-sm font-medium">Checking session...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[color:var(--color-base)] relative overflow-hidden py-12">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white via-blue-50 to-white relative overflow-hidden py-12">
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute inset-0 bg-grid-slate opacity-30" style={{ backgroundSize: '140px 140px' }}></div>
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `linear-gradient(rgba(13, 110, 253, 0.1) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(13, 110, 253, 0.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }}></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo Section */}
         <div className="text-center mb-10 space-y-3">
           <Link href="/" className="inline-block group">
-            <h1 className="text-5xl font-black bg-gradient-to-r from-sky-200 via-cyan-200 to-indigo-200 bg-clip-text text-transparent tracking-tight group-hover:from-sky-100 group-hover:via-cyan-100 group-hover:to-indigo-100 transition-all duration-300">
+            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-900 via-blue-700 to-blue-900 bg-clip-text text-transparent tracking-tight group-hover:from-blue-800 group-hover:via-blue-600 group-hover:to-blue-800 transition-all duration-300">
               DILITECH SOLUTIONS
             </h1>
-            <p className="text-sm text-sky-300/80 font-semibold tracking-[0.2em] mt-1 uppercase">Computer Solutions</p>
+            <p className="text-sm text-blue-700 font-bold tracking-[0.2em] mt-1 uppercase">Computer Solutions</p>
           </Link>
-          <p className="text-slate-400 text-sm mt-4">Join the future of technology</p>
+          <p className="text-gray-600 text-sm mt-4 font-medium">Join the future of technology</p>
         </div>
 
         {/* Sign Up Card */}
-        <div className="glass-panel p-8 space-y-6">
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-gray-200 p-8 space-y-6">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold text-white">Create Account</h2>
-            <p className="text-sm text-slate-400">Start your journey with us today</p>
+            <h2 className="text-3xl font-black text-gray-900">Create Account</h2>
+            <p className="text-sm text-gray-600">Start your journey with us today</p>
           </div>
           
           {/* Google Sign Up */}
           <button
             onClick={handleGoogleSignUp}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 bg-white/95 hover:bg-white text-gray-900 font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl border border-white/20"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-blue-300"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -202,35 +207,35 @@ export default function SignUp() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700/50"></div>
+              <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[color:var(--surface-primary)] text-slate-500">Or create with email</span>
+              <span className="px-4 bg-white text-gray-500 font-medium">Or create with email</span>
             </div>
           </div>
 
           {/* Email Form */}
           <form onSubmit={handleEmailSignUp} className="space-y-5">
             {error && (
-              <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-200 text-sm flex items-start gap-2">
+              <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-900 text-sm flex items-start gap-3">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{error}</span>
+                <span className="font-medium">{error}</span>
               </div>
             )}
             {success && (
-              <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-200 text-sm flex items-start gap-2">
+              <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl text-green-900 text-sm flex items-start gap-3">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{success}</span>
+                <span className="font-medium">{success}</span>
               </div>
             )}
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="signup-firstName" className="block text-sm font-medium text-slate-300">
+                <label htmlFor="signup-firstName" className="block text-sm font-bold text-gray-900">
                   First name
                 </label>
                 <input
@@ -238,14 +243,14 @@ export default function SignUp() {
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                  className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                   placeholder="John"
                   required
                   aria-required="true"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="signup-lastName" className="block text-sm font-medium text-slate-300">
+                <label htmlFor="signup-lastName" className="block text-sm font-bold text-gray-900">
                   Last name
                 </label>
                 <input
@@ -253,7 +258,7 @@ export default function SignUp() {
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                  className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                   placeholder="Doe"
                   required
                   aria-required="true"
@@ -262,7 +267,7 @@ export default function SignUp() {
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="signup-email" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="signup-email" className="block text-sm font-bold text-gray-900">
                 Email address
               </label>
               <input
@@ -270,7 +275,7 @@ export default function SignUp() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                 placeholder="you@example.com"
                 required
                 aria-required="true"
@@ -278,7 +283,7 @@ export default function SignUp() {
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="signup-password" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="signup-password" className="block text-sm font-bold text-gray-900">
                 Password
               </label>
               <input
@@ -286,18 +291,18 @@ export default function SignUp() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                 placeholder="Min. 6 characters"
                 required
                 minLength={6}
                 aria-required="true"
                 aria-describedby="signup-password-help"
               />
-              <p id="signup-password-help" className="text-xs text-slate-500">Must be at least 6 characters long</p>
+              <p id="signup-password-help" className="text-xs text-gray-500">Must be at least 6 characters long</p>
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="signup-confirmPassword" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="signup-confirmPassword" className="block text-sm font-bold text-gray-900">
                 Confirm Password
               </label>
               <input
@@ -305,7 +310,7 @@ export default function SignUp() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition-all"
                 placeholder="Confirm your password"
                 required
                 aria-required="true"
@@ -318,14 +323,14 @@ export default function SignUp() {
                   type="checkbox"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded border-slate-600 bg-slate-800/50 text-sky-500 focus:ring-2 focus:ring-sky-500/50 focus:ring-offset-0 cursor-pointer flex-shrink-0"
+                  className="w-4 h-4 mt-0.5 rounded border-gray-300 bg-white text-blue-900 focus:ring-2 focus:ring-blue-900 focus:ring-offset-0 cursor-pointer flex-shrink-0"
                   required
                 />
-                <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
+                <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-sky-400 hover:text-sky-300 font-medium">Terms of Service</Link>
+                  <Link href="/terms" className="text-blue-900 hover:text-blue-700 font-bold">Terms of Service</Link>
                   {' '}and{' '}
-                  <Link href="/privacy" className="text-sky-400 hover:text-sky-300 font-medium">Privacy Policy</Link>
+                  <Link href="/privacy" className="text-blue-900 hover:text-blue-700 font-bold">Privacy Policy</Link>
                 </span>
               </label>
             </div>
@@ -333,7 +338,7 @@ export default function SignUp() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:shadow-sky-500/20"
+              className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -347,12 +352,12 @@ export default function SignUp() {
           </form>
 
           {/* Sign In Link */}
-          <div className="pt-4 border-t border-slate-700/50">
-            <p className="text-center text-slate-400 text-sm">
+          <div className="pt-4 border-t border-gray-200">
+            <p className="text-center text-gray-600 text-sm">
               Already have an account?{' '}
               <Link 
                 href="/auth/signin" 
-                className="text-sky-400 hover:text-sky-300 font-semibold transition-colors"
+                className="text-blue-900 hover:text-blue-700 font-bold transition-colors"
               >
                 Sign in
               </Link>

@@ -2,6 +2,7 @@ import { ApiResponse, createApiHandler } from '@/lib/apiResponse'
 import { apiRateLimiter } from '@/lib/middleware/rateLimiter'
 import { prisma } from '@/lib/prisma'
 import logger from '@/lib/logger'
+import { logAudit } from '@/lib/auditLogger'
 
 /**
  * M-Pesa Callback Handler
@@ -113,6 +114,13 @@ export const POST = createApiHandler({
           })
 
           logger.info('M-Pesa payment successful', { orderId: updatedOrder.id, receipt: mpesaReceiptNumber })
+          await logAudit({
+            action: 'MPESA_PAYMENT_SUCCESS',
+            userId: order.userId,
+            entityType: 'order',
+            entityId: order.id,
+            details: { mpesaReceiptNumber, amount, phoneNumber },
+          })
 
           return { orderId: updatedOrder.id, mpesaReceiptNumber, transactionDate, phoneNumber, amount, alreadyCompleted: false }
         } else {
@@ -128,6 +136,13 @@ export const POST = createApiHandler({
           })
 
           logger.warn('M-Pesa payment failed', { orderId: order.id, reason: resultDesc })
+          await logAudit({
+            action: 'MPESA_PAYMENT_FAILED',
+            userId: order.userId,
+            entityType: 'order',
+            entityId: order.id,
+            details: { reason: resultDesc },
+          })
 
           return { orderId: order.id, failed: true, reason: resultDesc }
         }

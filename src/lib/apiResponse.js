@@ -26,12 +26,19 @@ export class ApiResponse {
     const response = {
       success: false,
       data: null,
-      message,
-      error: error || message,
+      message: String(message || 'An error occurred'),
+      error: String(error || message || 'An error occurred'),
     }
 
     if (details) {
-      response.details = details
+      // Ensure details is serializable
+      if (Array.isArray(details)) {
+        response.details = details
+      } else if (typeof details === 'object' && details !== null) {
+        response.details = details
+      } else {
+        response.details = [details]
+      }
     }
 
     // Log error
@@ -48,6 +55,10 @@ export class ApiResponse {
     return this.error(message, 403)
   }
 
+  static badRequest(message = 'Bad request', details = null) {
+    return this.error(message, 400, 'BadRequest', details)
+  }
+
   static notFound(message = 'Resource not found') {
     return this.error(message, 404)
   }
@@ -57,7 +68,13 @@ export class ApiResponse {
   }
 
   static serverError(message = 'Internal server error', error = null) {
-    return this.error(message, 500, error?.message || 'InternalServerError')
+    const errorMessage = error?.message || error?.toString() || 'InternalServerError'
+    const errorDetails = error ? {
+      name: error.name,
+      code: error.code,
+      meta: error.meta,
+    } : null
+    return this.error(message, 500, errorMessage, errorDetails)
   }
 
   static rateLimitExceeded(retryAfter = null) {
@@ -93,13 +110,14 @@ export function withErrorHandling(handler) {
       logger.apiError(method, path, error)
 
       // Return appropriate error response
-      if (error.name === 'ZodError') {
-        return ApiResponse.validationError(
-          error.errors.map(err => ({
-            path: err.path.join('.'),
-            message: err.message,
+      if (error.name === 'ZodError' && error.errors && Array.isArray(error.errors)) {
+        const errorDetails = error.errors
+          .filter(err => err != null) // Filter out null/undefined errors
+          .map(err => ({
+            path: (err.path && Array.isArray(err.path)) ? err.path.join('.') : String(err.path || ''),
+            message: err.message || 'Validation error',
           }))
-        )
+        return ApiResponse.validationError(errorDetails)
       }
 
       if (error.message?.includes('Unauthorized') || error.message?.includes('401')) {
@@ -109,6 +127,15 @@ export function withErrorHandling(handler) {
       if (error.message?.includes('Forbidden') || error.message?.includes('403')) {
         return ApiResponse.forbidden(error.message)
       }
+
+      // Log full error details for debugging
+      console.error('API Error Details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+        meta: error.meta,
+      })
 
       return ApiResponse.serverError(
         error.message || 'An unexpected error occurred',
@@ -147,7 +174,17 @@ export function createApiHandler(options = {}) {
     wrappedHandler = async (request, context) => {
       const validationResult = await validator(request)
       if (!validationResult.success) {
-        return ApiResponse.validationError(validationResult.details)
+        let details = []
+        if (validationResult.details) {
+          if (Array.isArray(validationResult.details)) {
+            details = validationResult.details.filter(d => d != null)
+          } else if (typeof validationResult.details === 'object') {
+            details = [validationResult.details]
+          } else {
+            details = [{ path: '', message: String(validationResult.details) }]
+          }
+        }
+        return ApiResponse.validationError(details, validationResult.error || 'Validation failed')
       }
       // Attach validated data to request
       request.validatedData = validationResult.data

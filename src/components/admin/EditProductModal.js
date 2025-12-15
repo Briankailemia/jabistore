@@ -1,14 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useCategories, useBrands } from '@/lib/apiService'
 
 export default function EditProductModal({ isOpen, onClose, product, onUpdateProduct }) {
   const { data: categoriesData } = useCategories()
   const { data: brandsData } = useBrands()
   
-  const categories = categoriesData || []
-  const brands = brandsData || []
+  // Extract arrays from API response structure
+  const categories = useMemo(() => {
+    if (!categoriesData) return []
+    if (Array.isArray(categoriesData)) return categoriesData
+    if (categoriesData.categories && Array.isArray(categoriesData.categories)) return categoriesData.categories
+    if (categoriesData.data && Array.isArray(categoriesData.data)) return categoriesData.data
+    return []
+  }, [categoriesData])
+  
+  const brands = useMemo(() => {
+    if (!brandsData) return []
+    if (Array.isArray(brandsData)) return brandsData
+    if (brandsData.brands && Array.isArray(brandsData.brands)) return brandsData.brands
+    if (brandsData.data && Array.isArray(brandsData.data)) return brandsData.data
+    return []
+  }, [brandsData])
 
   const [formData, setFormData] = useState({
     name: '',
